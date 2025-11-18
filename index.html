@@ -337,7 +337,52 @@
   { label: "NextThreeBooks", info: "Buch-KI empfiehlt ähnliche Titel basierend auf deinen Lieblingsbüchern.", url: "https://nextthreebooks.com" },
   { label: "ConkerAI", info: "Erstellt Lernmaterialien, Quizfragen und Tests für Bildung.", url: "https://conker.ai" },
   { label: "NotebookLM", info: "Google-KI analysiert PDF-Dokumente, Notizen und Texte.", url: "https://notebooklm.google" },
-  { label: "Analog", info: "Analoge Herangehensweisen: Kolleg:innen fragen, Bücher nutzen, Methoden aus Fachliteratur anwenden, im Team reflektieren.", url: null }
+  { label: "Google Lense", info: "Texte scannen und übersetzen, Tiere, Pflanzen und vieles mehr erkennen. ", url: "https://lens.google/intl/de/#cta-section" },  
+  { label: "Envision AI", info: "Reduziert Barrieren für Sehbehinderte Menschen. Übersetzt Bilder in Texte", url: "https://www.letsenvision.com/" },
+  { label: "Analog", info: "Analoge Herangehensweisen: Kolleg:innen fragen, Bücher nutzen, Methoden aus Fachliteratur anwenden, im Team reflektieren.", url: null },
+];
+  
+  const htmlList = KIs.map(ki => {
+@@ -356,8 +358,41 @@ <h2 id="problemTitle">Problem</h2>
+    },
+   {
+      title:"Du arbeitest in einem Walkindergarten. Jedes Jahr erstellen die Kinder ein Buch mit getrockneten Blättern, Blumen und weiteren Pflanzen. Meist sind es Blätter die du kennst. Mick (5 Jahre) frägt dich diesmal bei einer Pflanze die du nicht kennst nach ihrem Namen.",
+      options:["Analog","ChatGPT","Microsoft Copilot","DeepL Write"]
+      options:["Analog","Google Lense","Microsoft Copilot","Perplexity"]
+    }, {
+      title: "Für die Hausaufgabenzeit in deiner Tagesheim-Klasse möchtest du während der Stillarbeit Hintergrundmusik laufen lassen. Welche KI-Angebote können hier helfen?",
+      options: ["Analog","Suno","Mubert","AIVA"]
+    },
+    {
+      title: "Das traditionelle Wintertheaterstück, welches die Hortkinder (6-10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählt ihr eines von fünf Winterbüchern, dieses Jahr habt ihr aber nur 3 Bücher, die die Kinder noch nicht kennen. Dir gehen die Ideen für neue Winterbücher aus.",
+      options: ["Analog","NextThreeBooks","Speechify","TTSReader"]
+    },
+    {
+      title: "Du bist Erzieher:in in einem deutsch-französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info-Blatt über das neue Bastelprojekt verschicken. Welche Optionen nutzt du?",
+      options: ["Analog","DeepL Translate","Gemini","Envision AI"]
+    },
+    {
+      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es einen Konflikt zwischen einem Vater und einer Kollegin. Er ist nicht einverstanden mit Projekten, die ihr im Kindergarten durchführt, und hält diese für überfordernd. Wie gehst du vor?",
+      options: ["Analog","ChatGPT","Claude","NotionAI"]
+    },
+    {
+      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält.",
+      options: ["Analog","Canva Magic Studio","DALL·E 3","AutoDraw"]
+    },
+    {
+      title: "Du willst eine kurze Umfrage an die Eltern schicken, um anonymes Feedback zu einem neuen Projekt zu sammeln. Welche der folgenden Optionen könntest du nutzen?",
+      options: ["Analog","ChatGPT","Microsoft Copilot","Scribble Diffusion"]
+    },
+    {
+      title: "In deiner Krippe-Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundiert frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deinem Hort wächst bilingual auf. Du kennst dich in der Thematik noch nicht gut aus. Wie gehst du vor?",
+      options: ["Analog","ChatGPT","Elicit","Glasp"]
+    },
+    {
+      title: "Seit mehreren Jahren bastelst du für die Kinder die den Kindergarten verlassen ein kleines Büchlein über ihre Kindergartenzeit mit Fotos und selbstgezeichneten Bildern. Welche Tools können dir dabei behilflich sein?",
+      options: ["Analog","Scribble Diffusion","Canva Magic Studio","Adobe Firefly"]
+    },
+    // vorhandenes oder ähnliches Szenario (falls gewünscht)
+  ];
 ];
   const htmlList = KIs.map(ki => {
   const content = ki.url
