@@ -318,7 +318,7 @@
   // ---- fixed: KIs must be a flat, valid array of objects (no syntax errors)
   const KIs = [
     { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://learn.microsoft.com/en-us/microsoft-365/copilot/" },
-    { label: "ChatGPT", info: "KI zum Schreiben, Erklären, Zusammenfassen und Entwickeln pädagogischer Ideen. Funktioniert in vielen Sprachen.", url: "https://chat.openai.com" },
+    { label: "ChatGPT", info: "Wohl bekannteste KI, ist ein Large Langage Model. ", url: "https://chat.openai.com" },
     { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
     { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
     { label: "LanguageTool", info: "KI für deutsche Texte. Prüft Grammatik, Stil und Satzbau. Browser-Add-on verfügbar.", url: "https://languagetool.org" },
@@ -347,7 +347,7 @@
     { label: "Elicit", info: "KI zur Recherche von Studien und Wissensquellen.", url: "https://elicit.org" },
     { label: "Askify", info: "Fasst YouTube-Videos automatisch zusammen.", url: "https://www.askify.ai" },
     { label: "Glasp", info: "Markiert und fasst Fachtexte und Videos zusammen.", url: "https://glasp.co" },
-    { label: "Teachable Machine", info: "Kinder können eigene KI-Modelle für Bilder und Geräusche trainieren.", url: "https://teachablemachine.withgoogle.com" },
+    { label: "Teachable Machine", info: "Dort können eigene KI-Modelle für Bilder und Geräusche trainiert werden.", url: "https://teachablemachine.withgoogle.com" },
     { label: "Poem Portraits", info: "Kreative Text- und Bild-KI für Poesie-Projekte.", url: "https://artsexperiments.withgoogle.com/poemportraits" },
     { label: "AI Duet", info: "Musik-KI, die live auf gespielte Melodien reagiert.", url: "https://experiments.withgoogle.com/ai/ai-duet" },
     { label: "Runway ML", info: "Video-KI, die Clips, Animationen und Effekte erzeugt.", url: "https://runwayml.com" },
@@ -380,6 +380,10 @@
       options: ["Analog","ChatGPT","Microsoft Copilot","Perplexity"]
     },
     {
+      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es ein Konflikt zwischen einem Vater und einer Kollegin. Dieser ist nicht einverstanden mit den Projekten, welche ihr im Kindergarten mir den Kindern durchführt, er hält diese für Überfordernd für die Kinder.",
+      options: ["Analog","ChatGPT","Runway ML","Educandy"]
+    },
+    {
       title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schuh‑binde‑Lied mit den Kindern entwickeln, das die Bewegungsabfolge erklärt und musikalisch untermalt, damit die Kinder leichter lernen und üben.",
       options: ["Analog","AI Duet","AIVA","Suno"]
     },
@@ -392,12 +396,16 @@
       options: ["Analog","Soundraw","Mubert","AIVA"]
     },
     {
+      title: "Die von dir betreeute Wohnheimgruppe (12 bis 19 J.) hat beschlossen ein Videoprojekt zu machen indem sich die Jugendliche selbst auf eine Kreative Art vorstellen wollen.",
+      options: ["Analog","MyHeritage Deep Nostalgia","Runway ML","InVideo"]
+    },
+    {
       title: "Das traditionelle Wintertheaterstück, das die Hortkinder (6–10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählen die Kinder eines von fünf Winterbüchern aus und inszenieren Teile davon — dieses Jahr möchtest du mehr partizipative Elemente und frische Ideen sammeln.",
       options: ["Analog","NextThreeBooks","Speechify","TTSReader"]
     },
     {
       title: "Du bist Erzieher:in in einem deutsch‑französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info‑Blatt über das neue Bastelprojekt erstellen, das in beiden Sprachen klar, kurz und ansprechend ist.",
-      options: ["Analog","DeepL Translate","Gemini","Envision AI"]
+      options: ["Analog","DeepL Translate","DeepL Write","Envision AI"]
     },
     {
       title: "Du willst eine kurze Umfrage an die Eltern schicken, um Feedback zu einem neuen Projekt zu sammeln. Das Feedback sollte anonym sein und sowohl offene als auch geschlossene Fragen enthalten.",
@@ -414,6 +422,10 @@
     {
       title: "In deiner Krippe‑Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundierte frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deiner Gruppe wächst mehrsprachig auf — wie kannst du inklusive Aktivitäten planen?",
       options: ["Analog","Elicit","Glasp","ChatGPT"]
+    }
+    {
+      title: "Du sollst mit Kindern und Jugendlichen im Alter von 9 bis 14 einen Workshop durchfüren indem sie KIs näher kennenlernen. Welche KI würdest du dir gerne mit den Kindern anschauen um das Konzept KI besser greifen zu könnne?",
+      options: ["Pika Labs","Poem Portraits","Teachable Machine","ChatGPT"]
     }
   ];
 
