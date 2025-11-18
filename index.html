@@ -9,6 +9,709 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+:root{
+--bg:#f5f8fb;
+--card-front:#e8f6ff;
+--card-back:#ffffff;
+--accent:#0066cc;
+--accent-2:#00a896;
+--muted:#6b7280;
+--winner:#fff59d;
+--glass: rgba(255,255,255,0.7);
+}
+
+html,body{height:100%;}
+body{
+margin:0;
+font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+background: linear-gradient(180deg,var(--bg),#eef6fb);
+color:#0f172a;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:28px;
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+}
+
+.app{
+width:100%;
+max-width:980px;
+min-height:540px;
+background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+border-radius:16px;
+box-shadow:0 8px 30px rgba(2,6,23,0.12);
+padding:20px;
+box-sizing:border-box;
+overflow:hidden;
+}
+
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+margin-bottom:12px;
+}
+.brand{
+display:flex;
+gap:12px;
+align-items:center;
+}
+.logo{
+width:44px;
+height:44px;
+border-radius:10px;
+background:linear-gradient(135deg,var(--accent),var(--accent-2));
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-weight:700;
+font-size:18px;
+box-shadow:0 6px 18px rgba(2,6,23,0.12);
+}
+.title{
+font-size:16px;
+font-weight:700;
+letter-spacing:0.2px;
+color:#07203a;
+}
+.subtitle{ font-size:12px;color:var(--muted); }
+
+.controls{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+.small{
+font-size:13px;padding:8px 10px;border-radius:8px;border:0;background:var(--glass);cursor:pointer;color:#07335a;
+box-shadow: 0 2px 6px rgba(2,6,23,0.06);
+}
+.small.primary{
+background:linear-gradient(180deg,var(--accent),#005bb5);
+color:white;
+font-weight:600;
+box-shadow: 0 6px 18px rgba(0,86,179,0.18);
+}
+
+.problem{
+padding:18px;
+border-radius:12px;
+background: linear-gradient(180deg,#ffffff,#fbfeff);
+box-shadow:0 4px 18px rgba(2,6,23,0.04);
+margin-bottom:16px;
+min-height:72px;
+}
+.problem h2{margin:0;font-size:18px;color:#07203a;font-weight:700;}
+.problem p{margin:6px 0 0 0;color:var(--muted);font-size:13px;}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:16px;
+margin-top:10px;
+}
+
+/* Card size and styles */
+.card{
+perspective:1400px;
+height:220px;
+position:relative;
+cursor:pointer;
+transition:transform .45s ease;
+will-change:transform;
+}
+
+.card-inner{
+position:relative;
+width:100%;
+height:100%;
+-webkit-transform-style:preserve-3d;
+transform-style:preserve-3d;
+-webkit-transition:transform .6s;
+transition:transform .6s;
+border-radius:12px;
+box-sizing:border-box;
+overflow:visible;
+box-shadow: 0 6px 20px rgba(2,6,23,0.06);
+}
+
+.card.flipped .card-inner{
+transform:rotateY(180deg);
+}
+
+/* Each face fills the card exactly */
+.card-face{
+position:absolute;
+left:0;top:0;width:100%;height:100%;
+box-sizing:border-box;border-radius:12px;padding:16px;
+display:flex;flex-direction:column;justify-content:center;align-items:center;
+-webkit-backface-visibility:hidden;
+backface-visibility:hidden;
+border:1px solid rgba(7,32,58,0.06);
+text-align:center;background-clip:padding-box;
+/* ensure GPU compositing to avoid bleed-through */
+-webkit-transform: translateZ(0);
+transform: translateZ(0);
+transition:opacity .12s linear;
+}
+
+/* Explicit transforms to avoid mirrored bleeding */
+.card-front{
+transform: rotateY(0deg);
+background:linear-gradient(180deg,var(--card-front),#e8f9ff);
+color:#042a47;
+z-index:2;
+opacity:1;
+pointer-events:auto;
+}
+.card-back{
+transform: rotateY(180deg);
+background:var(--card-back);
+z-index:1;
+opacity:0;
+pointer-events:none;
+}
+
+/* When flipped we hide front (opacity) and show back; this combined with backface-visibility prevents mirrored text */
+.card.flipped .card-front{ opacity:0; pointer-events:none; }
+.card.flipped .card-back{ opacity:1; pointer-events:auto; }
+
+.card-front .label{font-weight:700;font-size:16px;letter-spacing:0.2px;}
+.card-front .favorite-btn{
+position:absolute;top:10px;right:10px;background:transparent;border:0;font-size:20px;cursor:pointer;color:rgba(7,32,58,0.6);
+}
+.card-front .favorite-btn.fav{color:#ffb300;}
+
+.card-back{ padding:18px;color:#0b2437;display:flex;align-items:flex-start;justify-content:center; }
+.back-text{ width:100%; font-size:13px; line-height:1.35; color:#0b2437; text-align:left; overflow:auto; max-height:calc(100% - 10px); }
+
+/* QUESTION BUTTON on back */
+.question-btn{
+margin-top:10px;
+align-self:flex-end;
+background:linear-gradient(180deg,var(--accent),#005bb5);
+color:white;
+border:0;
+padding:6px 10px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+font-size:13px;
+}
+
+.vote-badge{
+position:absolute;top:10px;left:10px;background:#042a47;color:white;padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px;display:none;
+}
+.vote-badge.show{display:inline-block;}
+
+@keyframes wiggle {
+0%   { transform: rotate(0deg); }
+15%  { transform: rotate(-10deg); }
+40%  { transform: rotate(8deg); }
+65%  { transform: rotate(-6deg); }
+85%  { transform: rotate(4deg); }
+100% { transform: rotate(0deg); }
+}
+.card.animating { animation: wiggle 700ms ease both; transform-origin:center center; }
+.card.winner .card-front,
+.card.winner .card-back { background: linear-gradient(180deg,#fff59d,#fff176); }
+
+.footer{ margin-top:14px;font-size:12px;color:var(--muted);text-align:center; }
+
+@media (max-width:900px){
+.cards{ grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width:480px){
+.cards{ grid-template-columns: repeat(1,1fr); }
+.card{ height:180px; }
+.brand .title{ font-size:14px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+<div class="brand" aria-hidden="true">
+<div class="logo">KI</div>
+<div>
+<div class="title">Flashcard Spiel</div>
+<div class="subtitle">Pädagogik &amp; KI</div>
+</div>
+</div>
+
+<div class="controls" role="toolbar" aria-label="Presenter controls">
+<button id="claimPresenter" class="small primary">Presenter anmelden</button>
+<button id="releasePresenter" class="small" style="display:none">Presenter freigeben</button>
+<button id="nextBtn" class="small" style="display:none">Nächstes Problem</button>
+<button id="resultsBtn" class="small" style="display:none">Ergebnisse</button>
+<button id="leaveRoom" class="small" title="Raum verlassen">Verlassen</button>
+</div>
+</div>
+
+<div class="problem">
+<h2 id="problemTitle">Problem</h2>
+</div>
+
+<div class="cards" id="cards" aria-live="polite" aria-atomic="true"></div>
+
+<div id="reflexion" style="display:none" aria-hidden="true"></div>
+
+<div class="footer" aria-hidden="true">© Spiel — teile den Raum-Link privat mit deinen Teilnehmenden</div>
+</div>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7H4uzRg4ltypPhA5frSYcgNy9XmkwxYA",
+    authDomain: "ki-spiel-66537.firebaseapp.com",
+    databaseURL: "https://ki-spiel-66537-default-rtdb.firebaseio.com",
+    projectId: "ki-spiel-66537",
+    storageBucket: "ki-spiel-66537.firebasestorage.app",
+    messagingSenderId: "1092304547290",
+    appId: "1:1092304547290:web:28c277073a6c15dbdae4e3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const KIs = [
+    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com" },
+    { label: "ChatGPT", info: "KI zum Schreiben, Erklären, Zusammenfassen und Entwickeln pädagogischer Ideen. Funktioniert in vielen Sprachen.", url: "https://chat.openai.com" },
+    { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
+    { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
+    { label: "LanguageTool", info: "KI für deutsche Texte. Prüft Grammatik, Stil und Satzbau. Browser-Add-on verfügbar.", url: "https://languagetool.org" },
+    { label: "Canva Magic Studio", info: "KI zur Gestaltung von Flyern, Plakaten, Elterninfos und Präsentationen.", url: "https://www.canva.com" },
+    { label: "Adobe Firefly", info: "Kreative KI für Bildbearbeitung, Mediengestaltung und Fotoverbesserung.", url: "https://firefly.adobe.com" },
+    { label: "Bing Image Creator", info: "Kostenloser Bildgenerator basierend auf DALL·E-Modellen.", url: "https://www.bing.com/create" },
+    { label: "DALL·E 3", info: "Bild-KI von OpenAI für Illustrationen, Comics und pädagogische Materialien.", url: "https://chat.openai.com" },
+    { label: "Soundraw", info: "Musikgenerator, erstellt Songs nach Stimmung, Tempo und Thema.", url: "https://soundraw.io" },
+    { label: "Mubert", info: "KI erzeugt endlose, lizenzfreie Musikstreams – ideal für Hintergrundmusik.", url: "https://mubert.com" },
+    { label: "AIVA", info: "Komponiert Musik für Projekte, Theater oder Videos in vielen Stilen.", url: "https://www.aiva.ai" },
+    { label: "Scribble Diffusion", info: "Verwandelt Kinderkritzeleien in klare digitale Zeichnungen.", url: "https://scribblediffusion.com" },
+    { label: "AutoDraw", info: "Google-Tool, das Skizzen automatisch erkennt und verbessert.", url: "https://www.autodraw.com" },
+    { label: "Gemini", info: "Google-KI, die Wissen erklärt, Antworten gibt und Unterrichtsideen liefert.", url: "https://gemini.google.com" },
+    { label: "Claude", info: "KI mit Fokus auf Sicherheit, Ethik und reflektierte Antworten.", url: "https://claude.ai" },
+    { label: "Speechify", info: "Liest Texte mit natürlich klingenden Stimmen vor.", url: "https://speechify.com" },
+    { label: "ElevenLabs", info: "Professionelle Text-to-Speech-KI mit emotionalen Stimmen.", url: "https://elevenlabs.io" },
+    { label: "TTSReader", info: "Kostenloses Vorlesetool ohne Anmeldung.", url: "https://ttsreader.com" },
+    { label: "Quizlet", info: "Lernplattform; KI erstellt automatisch Quizfragen aus Texten.", url: "https://quizlet.com" },
+    { label: "Kahoot!", info: "Interaktive Lernspiele für Gruppen und Teams.", url: "https://kahoot.com" },
+    { label: "Educandy", info: "Erstellt einfache Lernspiele ohne Programmierkenntnisse.", url: "https://www.educandy.com" },
+    { label: "Lumi Education (H5P)", info: "Open-Source-Tool für interaktive Lerninhalte, offline nutzbar.", url: "https://lumi.education" },
+    { label: "DeepL Translate", info: "Präziser Übersetzer für viele Sprachen.", url: "https://www.deepl.com" },
+    { label: "DeepL Write", info: "Stilverbesserer für deutsche und englische Texte.", url: "https://www.deepl.com/write" },
+    { label: "Canva Magic Write", info: "Text-KI in Canva zur Erstellung von Aushängen und Posts.", url: "https://www.canva.com" },
+    { label: "Perplexity", info: "KI-Suchmaschine mit Quellenangaben.", url: "https://perplexity.ai" },
+    { label: "Elicit", info: "KI zur Recherche von Studien und Wissensquellen.", url: "https://elicit.org" },
+    { label: "Askify", info: "Fasst YouTube-Videos automatisch zusammen.", url: "https://www.askify.ai" },
+    { label: "Glasp", info: "Markiert und fasst Fachtexte und Videos zusammen.", url: "https://glasp.co" },
+    { label: "Teachable Machine", info: "Kinder können eigene KI-Modelle für Bilder und Geräusche trainieren.", url: "https://teachablemachine.withgoogle.com" },
+    { label: "Poem Portraits", info: "Kreative Text- und Bild-KI für Poesie-Projekte.", url: "https://artsexperiments.withgoogle.com/poemportraits" },
+    { label: "AI Duet", info: "Musik-KI, die live auf gespielte Melodien reagiert.", url: "https://experiments.withgoogle.com/ai/ai-duet" },
+    { label: "Runway ML", info: "Video-KI, die Clips, Animationen und Effekte erzeugt.", url: "https://runwayml.com" },
+    { label: "Pika Labs", info: "Erstellt KI-Videos aus Texten oder Bildern.", url: "https://pika.art" },
+    { label: "MyHeritage Deep Nostalgia", info: "Animiert Portraitfotos so, dass Gesichter sich bewegen.", url: "https://www.myheritage.de/deep-nostalgia" },
+    { label: "InVideo", info: "Automatischer Videoeditor, generiert Clips und Sprechertexte.", url: "https://invideo.io" },
+    { label: "Muzify", info: "KI für Musik- und Songerstellung aus Textvorgaben.", url: "https://muzify.ai" },
+    { label: "QuizGecko", info: "Erstellt Quizfragen aus Texten oder Webseiten.", url: "https://quizgecko.com" },
+    { label: "Suno", info: "KI, die komplette Songs mitsamt Gesang generiert.", url: "https://suno.com" },
+    { label: "YouTube Transcript Tools", info: "Erstellt Transkripte von YouTube-Videos.", url: "https://chromewebstore.google.com" },
+    { label: "NextThreeBooks", info: "Buch-KI empfiehlt ähnliche Titel basierend auf deinen Lieblingsbüchern.", url: "https://nextthreebooks.com" },
+    { label: "ConkerAI", info: "Erstellt Lernmaterialien, Quizfragen und Tests für Bildung.", url: "https://conker.ai" },
+    { label: "NotebookLM", info: "Google-KI analysiert PDF-Dokumente, Notizen und Texte.", url: "https://notebooklm.google" },
+    { label: "Google Lense", info: "Bilderkennung durch Smartphone-Kamera. Kann Objekte, Texte, Pflanzen, Tiere und Sehenswürdigkeiten erkennen."},
+    { label: "Analog", info: "Analoge Herangehensweisen: Kolleg:innen fragen, Bücher nutzen, Methoden aus Fachliteratur anwenden, im Team reflektieren.", url: null }
+  ];
+
+  const htmlList = KIs.map(ki => {
+  const content = ki.url
+    ? `<a href="${ki.url}" target="_blank" title="${ki.info}">${ki.label}</a>`
+    : `<span title="${ki.info}">${ki.label}</span>`;
+  return `<li>${content}</li>`;
+}).join("\n");
+const scenarios = [
+    {
+      title: "In deiner Kindergruppe habt ihr aktuell das Thema Transportmittel. Du möchtest mit den Kindern einen Ausflug ins Deutschen Museum machen und eine Führung buchen, die speziell auf die dort ausgestellten Schiffe, Flugzeuge und Autos eingeht. Was kann dir dabei helfen die Führung zu buchen?",
+      options: ["Analog", "ChatGPT", "Microsoft Copilot", "DeepL Write"]
+    },
+     {
+      title: "Du arbeitest in einem Walkindergarten. Jedes Jahr erstellen die Kinder ein Buch mit getrockneten Blättern, Blumen und weiteren Pflanzen. Dieses Jahr fragt Mick (5 Jahre) bei einer Pflanze mit dünnem Stiel und 5 kleinen, augenförmigen Blättern nach dem Namen. Wie findest du die Pflanze heraus?",
+      options: ["Analog", "Google Lense", "ChatGPT"]
+    },
+    {
+      title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schubindlied mit ihnen machen, welches die Bewegung erklärt und untermalt. Wie gehst du vor?",
+      options: ["Analog", "Muzify", "ChatGPT", "Poem Portraits"]
+    },
+    {
+      title: "Für die Hausaufgabenzeit in deiner Tagesheim-Klasse möchtest du während der Stillarbeit Hintergrundmusik laufen lassen. Welche KI-Angebote können hier helfen?",
+      options: ["Suno", "Mubert", "AIVA", "Soundraw"]
+    },
+    {
+      title: "Das traditionelle Wintertheaterstück, welches die Hortkinder (6-10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählt ihr eines von fünf Winterbüchern, dieses Jahr habt ihr aber nur 3 Bücher, die die Kinder noch nicht kennen. Dir gehen die Ideen für neue Winterbücher aus.",
+      options: ["NextThreeBooks", "ChatGPT", "Analog"]
+    },
+    {
+      title: "Du bist Erzieher:in in einem deutsch-französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info-Blatt über das neue Bastelprojekt verschicken. Welche Optionen nutzt du?",
+      options: ["Analog", "DeepL Translate", "ChatGPT"]
+    },
+    {
+      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es einen Konflikt zwischen einem Vater und einer Kollegin. Er ist nicht einverstanden mit Projekten, die ihr im Kindergarten durchführt, und hält diese für überfordernd. Wie gehst du vor?",
+      options: ["ChatGPT", "Analog"]
+    },
+    {
+      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält.",
+      options: ["Analog", "Canva Magic Studio", "ChatGPT", "AutoDraw"]
+    },
+    {
+      title: "Du willst eine kurze Umfrage an die Eltern schicken, um anonymes Feedback zu einem neuen Projekt zu sammeln. Welche der folgenden Optionen könntest du nutzen?",
+      options: ["Analog", "ChatGPT", "Microsoft Copilot"]
+    },
+    {
+      title: "In deiner Krippe-Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundiert frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deinem Hort wächst bilingual auf. Du kennst dich in der Thematik noch nicht gut aus. Wie gehst du vor?",
+      options: ["Analog", "ChatGPT", "Elicit", "Glasp"]
+    },
+    // vorhandenes oder ähnliches Szenario (falls gewünscht)
+    {
+      title: "Du arbeitest in einem Walkindergarten. Jedes Jahr erstellen die Kinder ein Buch mit getrockneten Blättern, Blumen und weiteren Pflanzen. Meist sind es Blätter die du kennst. Mick (5 Jahre) fragt dich diesmal bei einer Pflanze welche du nicht kennst nach dem Namen der Pflanze.",
+      options: ["Analog", "Google Lense", "ChatGPT", "Askify"]
+    }
+  ];
+
+// helpers: room id in URL (link still contains ?room=ID but kept hidden in UI)
+function qs(name){ const params = new URLSearchParams(window.location.search); return params.get(name); }
+function setQs(name,val){ const url = new URL(window.location.href); url.searchParams.set(name,val); window.history.replaceState({},'',url); }
+function makeId(n=6){ const chars='abcdefghijklmnopqrstuvwxyz0123456789'; let s=''; for(let i=0;i<n;i++) s+=chars[Math.floor(Math.random()*chars.length)]; return s; }
+
+let roomId = qs('room');
+if(!roomId){ roomId = makeId(6); setQs('room',roomId); }
+
+const roomStateRef = ref(db, `/rooms/${roomId}/state`);
+const roomVotesRef = ref(db, `/rooms/${roomId}/votes`);
+const roomPresenterRef = ref(db, `/rooms/${roomId}/presenter`);
+
+// client id
+let clientId = localStorage.getItem('flash_clientId');
+if(!clientId){ clientId = 'c_' + Date.now() + '_' + Math.floor(Math.random()*10000); localStorage.setItem('flash_clientId', clientId); }
+
+// DOM refs
+const problemTitle = document.getElementById('problemTitle');
+const cardsEl = document.getElementById('cards');
+const reflexionEl = document.getElementById('reflexion');
+const claimPresenterBtn = document.getElementById('claimPresenter');
+const releasePresenterBtn = document.getElementById('releasePresenter');
+const nextBtn = document.getElementById('nextBtn');
+const resultsBtn = document.getElementById('resultsBtn');
+const leaveRoomBtn = document.getElementById('leaveRoom');
+
+// state
+let currentProblemIndex = 0;
+let presenterResultsShown = false;
+let votes = {};
+let presenterId = null;
+let isPresenter = false;
+
+// --- Rendering ---
+function renderScenarioForClient(){
+const s = scenarios[currentProblemIndex];
+problemTitle.textContent = s.title;
+cardsEl.innerHTML = '';
+
+s.options.forEach(optLabel=>{
+const kiObj = KIs.find(k=>k.label===optLabel) || {label:optLabel, info:"(keine Info verfügbar)"};
+const card = document.createElement('div');
+card.className = 'card';
+card.innerHTML = `
+       <div class="card-inner">
+         <div class="card-face card-front" aria-hidden="false">
+           <div class="vote-badge">0</div>
+           <button class="favorite-btn" title="Als Favorit wählen" aria-label="Als Favorit wählen">☆</button>
+           <div class="label">${kiObj.label}</div>
+         </div>
+         <div class="card-face card-back" aria-hidden="true">
+           <div class="back-text">${kiObj.info}</div>
+           <button class="question-btn" aria-label="Reflexionsfrage">Frage</button>
+         </div>
+       </div>
+     `;
+
+const favBtn = card.querySelector('.favorite-btn');
+const qBtn = card.querySelector('.question-btn');
+
+// Flip on click (ignore fav and question buttons)
+card.addEventListener('click', (e)=>{
+if(e.target === favBtn || e.target === qBtn) return;
+card.classList.toggle('flipped');
+const front = card.querySelector('.card-front');
+const back = card.querySelector('.card-back');
+if(card.classList.contains('flipped')){
+front.setAttribute('aria-hidden','true'); back.setAttribute('aria-hidden','false');
+} else {
+front.setAttribute('aria-hidden','false'); back.setAttribute('aria-hidden','true');
+}
+});
+
+// Favorite click -> set/remove vote in DB
+favBtn.addEventListener('click', (e)=>{
+e.stopPropagation();
+const currentVote = votes[clientId] || null;
+const newVote = currentVote === kiObj.label ? null : kiObj.label;
+set(ref(db, `/rooms/${roomId}/votes/${clientId}`), newVote).catch(err=>console.error('vote write failed',err));
+});
+
+// Question button shows reflexion text (does NOT flip back)
+qBtn.addEventListener('click', (e)=>{
+e.stopPropagation();
+reflexionEl.style.display = 'block';
+reflexionEl.textContent = kiObj.label === "Analog" ?
+"Wäre diese analoge Lösung praktikabel in deiner Einrichtung?" :
+`Was wäre der Vorteil, ${kiObj.label} in deiner Gruppe einzusetzen?`;
+// set aria-hidden for reflexion container for screen readers
+reflexionEl.setAttribute('aria-hidden','false');
+});
+
+cardsEl.appendChild(card);
+});
+
+// clear winner classes and update UI
+clearWinnerState();
+applyVotesToUI();
+updatePresenterControls();
+}
+
+// Update UI with votes and counts.
+function applyVotesToUI(){
+const counts = {};
+Object.values(votes||{}).forEach(label=>{
+if(!label) return;
+counts[label] = (counts[label]||0)+1;
+});
+
+document.querySelectorAll('.card').forEach(card=>{
+const label = card.querySelector('.label')?.textContent;
+const favBtn = card.querySelector('.favorite-btn');
+const badge = card.querySelector('.vote-badge');
+if(!label || !favBtn) return;
+
+if(votes[clientId] === label){
+favBtn.classList.add('fav'); favBtn.textContent = '★';
+} else {
+favBtn.classList.remove('fav'); favBtn.textContent = '☆';
+}
+
+const n = counts[label] || 0;
+badge.textContent = n;
+if(presenterResultsShown && isPresenter){
+badge.classList.add('show');
+} else {
+badge.classList.remove('show');
+}
+});
+
+if(isPresenter && presenterResultsShown){
+sortCardsByVotes(counts);
+triggerWinnerAnimation(counts);
+} else {
+if(!presenterResultsShown){
+clearWinnerState();
+restoreOriginalOrder();
+}
+}
+}
+
+function sortCardsByVotes(counts){
+const cardEls = Array.from(cardsEl.children);
+if(cardEls.length <= 1) return;
+
+const map = new Map(cardEls.map(c => [c, c.querySelector('.label')?.textContent || '']));
+
+const beforeRects = new Map();
+cardEls.forEach(c => beforeRects.set(c, c.getBoundingClientRect()));
+
+const sorted = Array.from(cardEls).sort((a,b)=>{
+const la = map.get(a), lb = map.get(b);
+const ca = counts[la] || 0, cb = counts[lb] || 0;
+if(cb !== ca) return cb - ca;
+return la.localeCompare(lb);
+});
+
+let already = true;
+for(let i=0;i<sorted.length;i++){ if(sorted[i] !== cardEls[i]){ already=false; break; } }
+if(already) return;
+
+sorted.forEach(el => cardsEl.appendChild(el));
+
+sorted.forEach(c => {
+const before = beforeRects.get(c);
+const after = c.getBoundingClientRect();
+if(!before || !after) return;
+const dx = before.left - after.left;
+const dy = before.top - after.top;
+c.style.transform = `translate(${dx}px, ${dy}px)`;
+c.style.transition = 'transform .6s ease';
+c.getBoundingClientRect();
+requestAnimationFrame(()=> { c.style.transform = ''; });
+const onTransitionEnd = (ev)=>{
+if(ev.propertyName === 'transform'){ c.style.transition = ''; c.removeEventListener('transitionend', onTransitionEnd); }
+};
+c.addEventListener('transitionend', onTransitionEnd);
+});
+}
+
+function triggerWinnerAnimation(counts){
+const max = Math.max(...Object.values(counts).concat(0));
+if(max === 0) return;
+const winners = Object.keys(counts).filter(l => counts[l] === max);
+if(winners.length === 0) return;
+
+const labelToCard = {};
+document.querySelectorAll('.card').forEach(card=>{
+const lab = card.querySelector('.label')?.textContent;
+if(lab) labelToCard[lab] = card;
+});
+
+clearWinnerState();
+
+winners.forEach((label)=>{
+const card = labelToCard[label];
+if(!card) return;
+card.classList.add('animating');
+const onAnimEnd = () => { card.classList.remove('animating'); card.classList.add('winner'); card.removeEventListener('animationend', onAnimEnd); };
+const removeTimeout = setTimeout(()=>{ if(card.classList.contains('animating')){ card.classList.remove('animating'); card.classList.add('winner'); } }, 900);
+card.addEventListener('animationend', (ev)=>{ clearTimeout(removeTimeout); onAnimEnd(); }, { once:true });
+});
+}
+
+function clearWinnerState(){ document.querySelectorAll('.card').forEach(card=>{ card.classList.remove('animating'); card.classList.remove('winner'); }); }
+
+function restoreOriginalOrder(){
+const s = scenarios[currentProblemIndex];
+const labels = s.options;
+const map = new Map();
+document.querySelectorAll('.card').forEach(card=>{
+const lab = card.querySelector('.label')?.textContent;
+if(lab) map.set(lab, card);
+});
+labels.forEach(l => { const el = map.get(l); if(el) cardsEl.appendChild(el); });
+}
+
+// Presenter password (client-side simple)
+const PRESENTER_PASSWORD = "Geheim!";
+
+async function claimPresenter(){
+try{
+const presRef = ref(db, `/rooms/${roomId}/presenter`);
+await runTransaction(presRef, (current)=>{
+if(current === null || current === clientId) return clientId;
+return;
+});
+}catch(err){ console.error('claim failed', err); }
+}
+
+claimPresenterBtn.addEventListener('click', async ()=>{
+const pwd = prompt('Presenter-Passwort eingeben:');
+if(pwd === null) return;
+if(pwd === PRESENTER_PASSWORD){ await claimPresenter(); } else { alert('Falsches Passwort.'); }
+});
+
+async function releasePresenter(){
+try{ const presRef = ref(db, `/rooms/${roomId}/presenter`); await runTransaction(presRef, (current)=>{ if(current===clientId) return null; return; }); }
+catch(err){ console.error('release failed', err); }
+}
+
+function toggleResults(){
+if(!isPresenter) return;
+presenterResultsShown = !presenterResultsShown;
+updatePresenterControls();
+applyVotesToUI();
+}
+
+function nextProblem(){
+if(!isPresenter) return;
+presenterResultsShown = false;
+clearWinnerState();
+const newIndex = (currentProblemIndex + 1) % scenarios.length;
+update(roomStateRef, { currentProblemIndex: newIndex, updatedAt: serverTimestamp() }).catch(err=>console.error(err));
+// reset votes for next problem:
+set(ref(db, `/rooms/${roomId}/votes`), null).catch(()=>{});
+}
+
+// DB listeners
+onValue(roomStateRef, (snap)=>{ 
+const data = snap.val();
+if(!data){
+set(roomStateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp() }).catch(()=>{});
+currentProblemIndex = 0;
+renderScenarioForClient();
+return;
+}
+currentProblemIndex = data.currentProblemIndex || 0;
+renderScenarioForClient();
+});
+
+onValue(roomVotesRef, (snap)=>{ votes = snap.val() || {}; applyVotesToUI(); });
+
+onValue(roomPresenterRef, (snap)=>{ presenterId = snap.val(); isPresenter = presenterId === clientId; updatePresenterControls(); applyVotesToUI(); });
+
+releasePresenterBtn.addEventListener('click', async ()=>{ const ok = confirm('Presenter freigeben?'); if(!ok) return; await releasePresenter(); });
+resultsBtn.addEventListener('click', ()=>{ if(isPresenter) toggleResults(); });
+nextBtn.addEventListener('click', ()=>{ if(isPresenter) nextProblem(); });
+
+leaveRoomBtn.addEventListener('click', async ()=>{ if(isPresenter){ await releasePresenter(); } const url = new URL(window.location.href); url.searchParams.delete('room'); window.location.href = url.toString(); });
+
+function updatePresenterControls(){
+if(isPresenter){
+nextBtn.style.display = 'inline-block';
+resultsBtn.style.display = 'inline-block';
+claimPresenterBtn.style.display = 'none';
+releasePresenterBtn.style.display = 'inline-block';
+resultsBtn.textContent = presenterResultsShown ? 'Ergebnisse verbergen' : 'Ergebnisse';
+}else{
+nextBtn.style.display = 'none';
+resultsBtn.style.display = 'none';
+claimPresenterBtn.style.display = 'inline-block';
+releasePresenterBtn.style.display = 'none';
+}
+}
+
+// bootstrap
+renderScenarioForClient();
+
+// best-effort release presenter on unload
+window.addEventListener('beforeunload', async ()=>{
+try{
+const presSnapshot = await get(roomPresenterRef);
+if(presSnapshot && presSnapshot.val() === clientId){
+await runTransaction(roomPresenterRef, (current)=>{ if(current===clientId) return null; return; });
+}
+}catch(e){/* ignore */}
+});
+</script>
+</body>
+</html>
+
+~
+
+alt---
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Flashcard Spiel — Pädagogik &amp; KI (Realtime)</title>
+
+<!-- nicer font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
   /* Vollständige CSS wie in deinem Originalcode, unverändert */
   :root{
     --bg:#f5f8fb;
