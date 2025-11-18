@@ -79,20 +79,13 @@
   <div class="footer" aria-hidden="true">© Spiel — teile den Raum-Link privat mit deinen Teilnehmenden</div>
 </div>
 
-<script type="module">
+ <script type="module">
+  // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import {
-    getDatabase,
-    ref,
-    onValue,
-    set,
-    update,
-    runTransaction,
-    serverTimestamp,
-    get
-  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Firebase Konfiguration
+  // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAaDK-oX9G-DXBRITymIo5SJiksoamOXCU",
     authDomain: "ki-faks-spiel.firebaseapp.com",
@@ -100,9 +93,10 @@
     projectId: "ki-faks-spiel",
     storageBucket: "ki-faks-spiel.firebasestorage.app",
     messagingSenderId: "510028538504",
-    appId: "1:510028538504:web:2ad71ab74dc0c2682cf53d"
+    appId: "1:510028538504:web:9de6a5bfd6a7cc242cf53d"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
