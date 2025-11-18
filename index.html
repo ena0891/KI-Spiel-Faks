@@ -293,99 +293,96 @@
 
   // ---- fixed: KIs must be a flat, valid array of objects (no syntax errors)
   const KIs = [
-  { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com" },
-  { label: "ChatGPT", info: "KI zum Schreiben, Erklären, Zusammenfassen und Entwickeln pädagogischer Ideen. Funktioniert in vielen Sprachen.", url: "https://chat.openai.com" },
-  { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
-  { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
-  { label: "LanguageTool", info: "KI für deutsche Texte. Prüft Grammatik, Stil und Satzbau. Browser-Add-on verfügbar.", url: "https://languagetool.org" },
-  { label: "Canva Magic Studio", info: "KI zur Gestaltung von Flyern, Plakaten, Elterninfos und Präsentationen.", url: "https://www.canva.com" },
-  { label: "Adobe Firefly", info: "Kreative KI für Bildbearbeitung, Mediengestaltung und Fotoverbesserung.", url: "https://firefly.adobe.com" },
-  { label: "Bing Image Creator", info: "Kostenloser Bildgenerator basierend auf DALL·E-Modellen.", url: "https://www.bing.com/create" },
-  { label: "DALL·E 3", info: "Bild-KI von OpenAI für Illustrationen, Comics und pädagogische Materialien.", url: "https://chat.openai.com" },
-  { label: "Soundraw", info: "Musikgenerator, erstellt Songs nach Stimmung, Tempo und Thema.", url: "https://soundraw.io" },
-  { label: "Mubert", info: "KI erzeugt endlose, lizenzfreie Musikstreams – ideal für Hintergrundmusik.", url: "https://mubert.com" },
-  { label: "AIVA", info: "Komponiert Musik für Projekte, Theater oder Videos in vielen Stilen.", url: "https://www.aiva.ai" },
-  { label: "Scribble Diffusion", info: "Verwandelt Kinderkritzeleien in klare digitale Zeichnungen.", url: "https://scribblediffusion.com" },
-  { label: "AutoDraw", info: "Google-Tool, das Skizzen automatisch erkennt und verbessert.", url: "https://www.autodraw.com" },
-  { label: "Gemini", info: "Google-KI, die Wissen erklärt, Antworten gibt und Unterrichtsideen liefert.", url: "https://gemini.google.com" },
-  { label: "Claude", info: "KI mit Fokus auf Sicherheit, Ethik und reflektierte Antworten.", url: "https://claude.ai" },
-  { label: "Speechify", info: "Liest Texte mit natürlich klingenden Stimmen vor.", url: "https://speechify.com" },
-  { label: "ElevenLabs", info: "Professionelle Text-to-Speech-KI mit emotionalen Stimmen.", url: "https://elevenlabs.io" },
-  { label: "TTSReader", info: "Kostenloses Vorlesetool ohne Anmeldung.", url: "https://ttsreader.com" },
-  { label: "Quizlet", info: "Lernplattform; KI erstellt automatisch Quizfragen aus Texten.", url: "https://quizlet.com" },
-  { label: "Kahoot!", info: "Interaktive Lernspiele für Gruppen und Teams.", url: "https://kahoot.com" },
-  { label: "Educandy", info: "Erstellt einfache Lernspiele ohne Programmierkenntnisse.", url: "https://www.educandy.com" },
-  { label: "Lumi Education (H5P)", info: "Open-Source-Tool für interaktive Lerninhalte, offline nutzbar.", url: "https://lumi.education" },
-  { label: "DeepL Translate", info: "Präziser Übersetzer für viele Sprachen.", url: "https://www.deepl.com" },
-  { label: "DeepL Write", info: "Stilverbesserer für deutsche und englische Texte.", url: "https://www.deepl.com/write" },
-  { label: "Canva Magic Write", info: "Text-KI in Canva zur Erstellung von Aushängen und Posts.", url: "https://www.canva.com" },
-  { label: "Perplexity", info: "KI-Suchmaschine mit Quellenangaben.", url: "https://perplexity.ai" },
-  { label: "Elicit", info: "KI zur Recherche von Studien und Wissensquellen.", url: "https://elicit.org" },
-  { label: "Askify", info: "Fasst YouTube-Videos automatisch zusammen.", url: "https://www.askify.ai" },
-  { label: "Glasp", info: "Markiert und fasst Fachtexte und Videos zusammen.", url: "https://glasp.co" },
-  { label: "Teachable Machine", info: "Kinder können eigene KI-Modelle für Bilder und Geräusche trainieren.", url: "https://teachablemachine.withgoogle.com" },
-  { label: "Poem Portraits", info: "Kreative Text- und Bild-KI für Poesie-Projekte.", url: "https://artsexperiments.withgoogle.com/poemportraits" },
-  { label: "AI Duet", info: "Musik-KI, die live auf gespielte Melodien reagiert.", url: "https://experiments.withgoogle.com/ai/ai-duet" },
-  { label: "Runway ML", info: "Video-KI, die Clips, Animationen und Effekte erzeugt.", url: "https://runwayml.com" },
-  { label: "Pika Labs", info: "Erstellt KI-Videos aus Texten oder Bildern.", url: "https://pika.art" },
-  { label: "MyHeritage Deep Nostalgia", info: "Animiert Portraitfotos so, dass Gesichter sich bewegen.", url: "https://www.myheritage.de/deep-nostalgia" },
-  { label: "InVideo", info: "Automatischer Videoeditor, generiert Clips und Sprechertexte.", url: "https://invideo.io" },
-  { label: "Muzify", info: "KI für Musik- und Songerstellung aus Textvorgaben.", url: "https://muzify.ai" },
-  { label: "QuizGecko", info: "Erstellt Quizfragen aus Texten oder Webseiten.", url: "https://quizgecko.com" },
-  { label: "Suno", info: "KI, die komplette Songs mitsamt Gesang generiert.", url: "https://suno.com" },
-  { label: "YouTube Transcript Tools", info: "Erstellt Transkripte von YouTube-Videos.", url: "https://chromewebstore.google.com" },
-  { label: "NextThreeBooks", info: "Buch-KI empfiehlt ähnliche Titel basierend auf deinen Lieblingsbüchern.", url: "https://nextthreebooks.com" },
-  { label: "ConkerAI", info: "Erstellt Lernmaterialien, Quizfragen und Tests für Bildung.", url: "https://conker.ai" },
-  { label: "NotebookLM", info: "Google-KI analysiert PDF-Dokumente, Notizen und Texte.", url: "https://notebooklm.google" },
-  { label: "Google Lense", info: "Texte scannen und übersetzen, Tiere, Pflanzen und vieles mehr erkennen. ", url: "https://lens.google/intl/de/#cta-section" },  
-  { label: "Envision AI", info: "Reduziert Barrieren für Sehbehinderte Menschen. Übersetzt Bilder in Texte", url: "https://www.letsenvision.com/" },
-  { label: "Analog", info: "Analoge Herangehensweisen: Kolleg:innen fragen, Bücher nutzen, Methoden aus Fachliteratur anwenden, im Team reflektieren.", url: null },
-];
+    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com/en-us/microsoft-365/copilot" },
+    { label: "ChatGPT", info: "KI zum Schreiben, Erklären, Zusammenfassen und Entwickeln pädagogischer Ideen. Funktioniert in vielen Sprachen.", url: "https://chat.openai.com" },
+    { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
+    { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
+    { label: "LanguageTool", info: "KI für deutsche Texte. Prüft Grammatik, Stil und Satzbau. Browser-Add-on verfügbar.", url: "https://languagetool.org" },
+    { label: "Canva Magic Studio", info: "KI zur Gestaltung von Flyern, Plakaten, Elterninfos und Präsentationen.", url: "https://www.canva.com" },
+    { label: "Adobe Firefly", info: "Kreative KI für Bildbearbeitung, Mediengestaltung und Fotoverbesserung.", url: "https://firefly.adobe.com" },
+    { label: "Bing Image Creator", info: "Kostenloser Bildgenerator basierend auf DALL·E-Modellen.", url: "https://www.bing.com/create" },
+    { label: "DALL·E 3", info: "Bild-KI von OpenAI für Illustrationen, Comics und pädagogische Materialien.", url: "https://openai.com/dall-e-3" },
+    { label: "Soundraw", info: "Musikgenerator, erstellt Songs nach Stimmung, Tempo und Thema.", url: "https://soundraw.io" },
+    { label: "Mubert", info: "KI erzeugt endlose, lizenzfreie Musikstreams – ideal für Hintergrundmusik.", url: "https://mubert.com" },
+    { label: "AIVA", info: "Komponiert Musik für Projekte, Theater oder Videos in vielen Stilen.", url: "https://www.aiva.ai" },
+    { label: "Scribble Diffusion", info: "Verwandelt Kinderkritzeleien in klare digitale Zeichnungen.", url: "https://scribblediffusion.com" },
+    { label: "AutoDraw", info: "Google-Tool, das Skizzen automatisch erkennt und verbessert.", url: "https://www.autodraw.com" },
+    { label: "Gemini", info: "Google-KI, die Wissen erklärt, Antworten gibt und Unterrichtsideen liefert.", url: "https://gemini.google.com" },
+    { label: "Claude", info: "KI mit Fokus auf Sicherheit, Ethik und reflektierte Antworten.", url: "https://claude.ai" },
+    { label: "Speechify", info: "Liest Texte mit natürlich klingenden Stimmen vor.", url: "https://speechify.com" },
+    { label: "ElevenLabs", info: "Professionelle Text-to-Speech-KI mit emotionalen Stimmen.", url: "https://elevenlabs.io" },
+    { label: "TTSReader", info: "Kostenloses Vorlesetool ohne Anmeldung.", url: "https://ttsreader.com" },
+    { label: "Quizlet", info: "Lernplattform; KI erstellt automatisch Quizfragen aus Texten.", url: "https://quizlet.com" },
+    { label: "Kahoot!", info: "Interaktive Lernspiele für Gruppen und Teams.", url: "https://kahoot.com" },
+    { label: "Educandy", info: "Erstellt einfache Lernspiele ohne Programmierkenntnisse.", url: "https://www.educandy.com" },
+    { label: "Lumi Education (H5P)", info: "Open-Source-Tool für interaktive Lerninhalte, offline nutzbar.", url: "https://lumi.education" },
+    { label: "DeepL Translate", info: "Präziser Übersetzer für viele Sprachen.", url: "https://www.deepl.com" },
+    { label: "DeepL Write", info: "Stilverbesserer für deutsche und englische Texte.", url: "https://www.deepl.com/write" },
+    { label: "Canva Magic Write", info: "Text-KI in Canva zur Erstellung von Aushängen und Posts.", url: "https://www.canva.com" },
+    { label: "Perplexity", info: "KI-Suchmaschine mit Quellenangaben.", url: "https://perplexity.ai" },
+    { label: "Elicit", info: "KI zur Recherche von Studien und Wissensquellen.", url: "https://elicit.org" },
+    { label: "Askify", info: "Fasst YouTube-Videos automatisch zusammen.", url: "https://www.askify.ai" },
+    { label: "Glasp", info: "Markiert und fasst Fachtexte und Videos zusammen.", url: "https://glasp.co" },
+    { label: "Teachable Machine", info: "Kinder können eigene KI-Modelle für Bilder und Geräusche trainieren.", url: "https://teachablemachine.withgoogle.com" },
+    { label: "Poem Portraits", info: "Kreative Text- und Bild-KI für Poesie-Projekte.", url: "https://artsexperiments.withgoogle.com/poemportraits" },
+    { label: "AI Duet", info: "Musik-KI, die live auf gespielte Melodien reagiert.", url: "https://experiments.withgoogle.com/ai/ai-duet" },
+    { label: "Runway ML", info: "Video-KI, die Clips, Animationen und Effekte erzeugt.", url: "https://runwayml.com" },
+    { label: "Pika Labs", info: "Erstellt KI-Videos aus Texten oder Bildern.", url: "https://pika.art" },
+    { label: "MyHeritage Deep Nostalgia", info: "Animiert Portraitfotos so, dass Gesichter sich bewegen.", url: "https://www.myheritage.de/deep-nostalgia" },
+    { label: "InVideo", info: "Automatischer Videoeditor, generiert Clips und Sprechertexte.", url: "https://invideo.io" },
+    { label: "Muzify", info: "KI für Musik- und Songerstellung aus Textvorgaben.", url: "https://muzify.ai" },
+    { label: "QuizGecko", info: "Erstellt Quizfragen aus Texten oder Webseiten.", url: "https://quizgecko.com" },
+    { label: "Suno", info: "KI, die komplette Songs mitsamt Gesang generiert.", url: "https://suno.com" },
+    { label: "YouTube Transcript Tools", info: "Erstellt Transkripte von YouTube-Videos.", url: "https://chromewebstore.google.com" },
+    { label: "NextThreeBooks", info: "Buch-KI empfiehlt ähnliche Titel basierend auf deinen Lieblingsbüchern.", url: "https://nextthreebooks.com" },
+    { label: "ConkerAI", info: "Erstellt Lernmaterialien, Quizfragen und Tests für Bildung.", url: "https://conker.ai" },
+    { label: "NotebookLM", info: "Google-KI analysiert PDF-Dokumente, Notizen und Texte.", url: "https://notebooklm.google" },
+    { label: "Google Lense", info: "Texte scannen und übersetzen, Tiere, Pflanzen und vieles mehr erkennen.", url: "https://lens.google/intl/de/#cta-section" },
+    { label: "Envision AI", info: "Reduziert Barrieren für Sehbehinderte Menschen. Übersetzt Bilder in Texte", url: "https://www.letsenvision.com/" },
+    { label: "Analog", info: "Analoge Herangehensweisen: Kolleg:innen fragen, Bücher nutzen, Methoden aus Fachliteratur anwenden, im Team reflektieren.", url: null },
+  ];
 
   const htmlList = KIs.map(ki => {
-  const content = ki.url
-    ? `<a href="${ki.url}" target="_blank" title="${ki.info}">${ki.label}</a>`
-    : `<span title="${ki.info}">${ki.label}</span>`;
-  return `<li>${content}</li>`;
-}).join("\n");
+    const content = ki.url
+      ? `<a href="${ki.url}" target="_blank" title="${ki.info}">${ki.label}</a>`
+      : `<span title="${ki.info}">${ki.label}</span>`;
+    return `<li>${content}</li>`;
+  }).join("\n");
+
+  // A set of clean, valid scenarios. Each options array should reference labels present in KIs (or use "Analog").
   const scenarios = [
-   {
-      title:"Du arbeitest in einem Walkindergarten. Jedes Jahr erstellen die Kinder ein Buch mit getrockneten Blättern, Blumen und weiteren Pflanzen. Meist sind es Blätter die du kennst. Mick (5 Jahre) frägt dich diesmal bei einer Pflanze die du nicht kennst nach ihrem Namen.",
-      options:["Analog","ChatGPT","Microsoft Copilot","DeepL Write"]
-      options:["Analog","Google Lense","Microsoft Copilot","Perplexity"]
-    }, {
+    {
+      title: "Du arbeitest in einem Waldkindergarten. Jedes Jahr erstellen die Kinder ein Herbarium mit getrockneten Blättern und Blumen. Einige Pflanzen sind schwer zu bestimmen. Welche optionen könnten helfen?",
+      options: ["Analog","Google Lense","Gemini","Perplexity"]
+    },
+    {
       title: "Für die Hausaufgabenzeit in deiner Tagesheim-Klasse möchtest du während der Stillarbeit Hintergrundmusik laufen lassen. Welche KI-Angebote können hier helfen?",
       options: ["Analog","Suno","Mubert","AIVA"]
     },
     {
-      title: "Das traditionelle Wintertheaterstück, welches die Hortkinder (6-10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählt ihr eines von fünf Winterbüchern, dieses Jahr habt ihr aber nur 3 Bücher, die die Kinder noch nicht kennen. Dir gehen die Ideen für neue Winterbücher aus.",
+      title: "Ihr plant das Wintertheaterstück. Welche Tools helfen euch bei der Auswahl von Geschichten oder der Erstellung von Texten und Stimmen?",
       options: ["Analog","NextThreeBooks","Speechify","TTSReader"]
     },
     {
-      title: "Du bist Erzieher:in in einem deutsch-französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info-Blatt über das neue Bastelprojekt verschicken. Welche Optionen nutzt du?",
+      title: "Ein Info-Blatt für Eltern soll zweisprachig (Deutsch/Französisch) verteilt werden. Welche Optionen sind sinnvoll?",
       options: ["Analog","DeepL Translate","Gemini","Envision AI"]
     },
     {
-      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es einen Konflikt zwischen einem Vater und einer Kollegin. Er ist nicht einverstanden mit Projekten, die ihr im Kindergarten durchführt, und hält diese für überfordernd. Wie gehst du vor?",
-      options: ["Analog","ChatGPT","Claude","NotionAI"]
+      title: "Ihr möchtet anonymes Feedback von Eltern sammeln. Welche Lösungen sind geeignet?",
+      options: ["Analog","ChatGPT","Microsoft Copilot","ConkerAI"]
     },
     {
-      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält.",
+      title: "Für die Gestaltung eines Aushangs für die Elternversammlung: Welche Tools könnt ihr nutzen?",
       options: ["Analog","Canva Magic Studio","DALL·E 3","AutoDraw"]
     },
     {
-      title: "Du willst eine kurze Umfrage an die Eltern schicken, um anonymes Feedback zu einem neuen Projekt zu sammeln. Welche der folgenden Optionen könntest du nutzen?",
-      options: ["Analog","ChatGPT","Microsoft Copilot","Scribble Diffusion"]
+      title: "Ihr wollt aus den Erzählungen der Kinder Quizaufgaben erstellen. Welche Tools können dabei unterstützen?",
+      options: ["Analog","Quizlet","QuizGecko","ChatGPT"]
     },
     {
-      title: "In deiner Krippe-Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundiert frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deinem Hort wächst bilingual auf. Du kennst dich in der Thematik noch nicht gut aus. Wie gehst du vor?",
-      options: ["Analog","ChatGPT","Elicit","Glasp"]
-    },
-    {
-      title: "Seit mehreren Jahren bastelst du für die Kinder die den Kindergarten verlassen ein kleines Büchlein über ihre Kindergartenzeit mit Fotos und selbstgezeichneten Bildern. Welche Tools können dir dabei behilflich sein?",
-      options: ["Analog","Scribble Diffusion","Canva Magic Studio","Adobe Firefly"]
-    },
-    // vorhandenes oder ähnliches Szenario (falls gewünscht)
+      title: "Bei der Unterstützung frühkindlicher Sprachentwicklung möchten Sie wissenschaftlich fundierte Übungen erstellen. Welche Tools könnten helfen?",
+      options: ["Analog","Elicit","Glasp","ChatGPT"]
+    }
   ];
 
 
@@ -700,4 +697,3 @@
 </script>
 </body>
 </html>
-
