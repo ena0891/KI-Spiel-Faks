@@ -245,6 +245,21 @@
 
   .footer{ margin-top:14px;font-size:12px;color:var(--muted);text-align:center; }
 
+  /* QR panel */
+  .qr-panel{
+    margin-top:12px;
+    padding:12px;
+    border-radius:10px;
+    background: linear-gradient(180deg,#ffffff,#f7fbff);
+    border:1px solid rgba(3,102,153,0.06);
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .qr-panel .qr-box{ width:140px; height:140px; display:flex; align-items:center; justify-content:center; background:white; border-radius:8px; box-shadow: 0 2px 6px rgba(2,6,23,0.04); }
+  .qr-panel .qr-actions{ display:flex; flex-direction:column; gap:8px; }
+  .qr-link{ font-size:13px; color:var(--muted); word-break:break-all; max-width:420px; }
+
   @media (max-width:900px){
     .cards{ grid-template-columns: repeat(2,1fr); }
   }
@@ -268,6 +283,7 @@
     </div>
 
     <div class="controls" role="toolbar" aria-label="Presenter controls">
+      <button id="joinRoomBtn" class="small primary" title="Raum beitreten">Raum beitreten</button>
       <button id="claimPresenter" class="small primary">Presenter anmelden</button>
       <button id="releasePresenter" class="small" style="display:none">Presenter freigeben</button>
       <button id="nextBtn" class="small" style="display:none">Nächstes Problem</button>
@@ -280,12 +296,29 @@
     <h2 id="problemTitle">Problem</h2>
   </div>
 
+  <div id="qrPanel" style="display:none">
+    <div class="qr-panel">
+      <div class="qr-box" id="qrBox"><canvas id="qrCanvas"></canvas></div>
+      <div class="qr-actions">
+        <div class="qr-link" id="qrLink"></div>
+        <div style="display:flex;gap:8px;">
+          <button id="copyLinkBtn" class="small">Link kopieren</button>
+          <button id="hideQrBtn" class="small">QR verbergen</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Andere Teilnehmende scannen den QR oder öffnen den Link, um in denselben Raum zu kommen.</div>
+      </div>
+    </div>
+  </div>
+
   <div class="cards" id="cards" aria-live="polite" aria-atomic="true"></div>
 
   <div id="reflexion" style="display:none" aria-hidden="true"></div>
 
   <div class="footer" aria-hidden="true">© Spiel — teile den Raum-Link privat mit deinen Teilnehmenden</div>
 </div>
+
+<!-- QR library (browser build) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -317,7 +350,7 @@
 
   // ---- fixed: KIs must be a flat, valid array of objects (no syntax errors)
   const KIs = [
-    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://copilot.microsoft.com/" },
+    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com" },
     { label: "ChatGPT", info: "Wohl bekannteste KI, ist ein Large Langage Model.", url: "https://chat.openai.com" },
     { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
     { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
@@ -376,19 +409,19 @@
   // A set of clean, valid scenarios. Each options array should reference labels present in KIs (or use "Analog").
   const scenarios = [
     {
-      title: "In deiner Kindergartengruppe bearbeitet ihr aktuell das Thema Transportmittel. Du möchtest mit den Kindern einen Ausflug ins Deutsche Museum machen und eine Führung buchen, die altersgerechte Informationen bietet und Aktivitäten für verschiedene Altersgruppen vorschlägt.",
+      title: "In deiner Kindergartengruppe bearbeitet ihr aktuell das Thema Transportmittel. Du möchtest mit den Kindern einen Ausflug ins Deutsche Museum machen und eine Führung buchen, die altersgerecht ist.",
       options: ["Analog","ChatGPT","Microsoft Copilot","Perplexity"]
     },
     {
-      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es ein Konflikt zwischen einem Vater und einer Kollegin. Dieser ist nicht einverstanden mit den Projekten, welche ihr im Kindergarten mir den Kindern durchführt, er hält diese für Überfordernd für die Kinder.",
+      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es ein Konflikt zwischen einem Vater und einer Kollegin. Dieser ist nicht einverstanden mit den Projekten, welche vorgestellt wurden.",
       options: ["Analog","ChatGPT","Runway ML","Educandy"]
     },
     {
-      title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schuh‑binde‑Lied mit den Kindern entwickeln, das die Bewegungsabfolge erklärt und musikalisch untermalt, damit die Kinder leichter lernen und üben.",
+      title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schuh‑binde‑Lied mit den Kindern entwickeln, das die Bewegungsabfolge erklärt und musikalisch unterstützt.",
       options: ["Analog","AI Duet","AIVA","Suno"]
     },
     {
-      title: "Du arbeitest in einem Waldkindergarten. Jedes Jahr erstellen die Kinder ein Herbarium mit getrockneten Blättern und Blumen. Mark (5 J.) fragt dich nach dem Namen einer dir unbekannten Pflanze — wie findest du kindgerechte Informationen dazu?",
+      title: "Du arbeitest in einem Waldkindergarten. Jedes Jahr erstellen die Kinder ein Herbarium mit getrockneten Blättern und Blumen. Mark (5 J.) fragt dich nach dem Namen einer dir unbekannten Pflanze.",
       options: ["Analog","Google Lense","Gemini","Perplexity"]
     },
     {
@@ -400,11 +433,11 @@
       options: ["Analog","MyHeritage Deep Nostalgia","Runway ML","InVideo"]
     },
     {
-      title: "Das traditionelle Wintertheaterstück, das die Hortkinder (6–10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählen die Kinder eines von fünf Winterbüchern aus und inszenieren Teile davon — dieses Jahr möchtest du mehr partizipative Elemente und frische Ideen sammeln.",
+      title: "Das traditionelle Wintertheaterstück, das die Hortkinder (6–10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählen die Kinder eines von fünf Winterbüchern aus.",
       options: ["Analog","NextThreeBooks","Speechify","TTSReader"]
     },
     {
-      title: "Du bist Erzieher:in in einem deutsch‑französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info‑Blatt über das neue Bastelprojekt erstellen, das in beiden Sprachen klar, kurz und ansprechend ist.",
+      title: "Du bist Erzieher:in in einem deutsch‑französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info‑Blatt über das neue Bastelprojekt erstellen.",
       options: ["Analog","DeepL Translate","DeepL Write","Envision AI"]
     },
     {
@@ -412,7 +445,7 @@
       options: ["Analog","ChatGPT","Microsoft Copilot","ConkerAI"]
     },
     {
-      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält und leicht gedruckt sowie digital geteilt werden kann.",
+      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält und leicht gedruckt werden kann.",
       options: ["Analog","Canva Magic Studio","DALL·E 3","AutoDraw"]
     },
     {
@@ -420,74 +453,22 @@
       options: ["Analog","Quizlet","QuizGecko","ChatGPT"]
     },
     {
-      title: "In deiner Krippe‑Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundierte frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deiner Gruppe wächst mehrsprachig auf — wie kannst du inklusive Aktivitäten planen?",
+      title: "In deiner Krippe‑Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundierte frühkindliche Sprachentwicklung fördern.",
       options: ["Analog","Elicit","Glasp","ChatGPT"]
     },
     {
-      title: "Du sollst mit Kindern und Jugendlichen im Alter von 9 bis 14 einen Workshop durchfüren indem sie KIs näher kennenlernen. Welche KI würdest du dir gerne mit den Kindern anschauen um das Konzept KI besser greifen zu könnne?",
+      title: "Du sollst mit Kindern und Jugendlichen im Alter von 9 bis 14 einen Workshop durchführen indem sie KIs näher kennenlernen. Welche KI würdest du dir gerne mit den Kindern anschauen?",
       options: ["Pika Labs","Poem Portraits","Teachable Machine","ChatGPT"]
     },
   ];
 
-// Hilfsfunktion: Wandelt Label in Link (wenn vorhanden)
-  function getLabelAsLink(label) {
-    const ki = KIs.find(item => item.label === label);
-    if (ki) {
-      return ki.url
-        ? `<a href="${ki.url}" target="_blank" title="${ki.info}">${ki.label}</a>`
-        : `<span title="${ki.info}">${ki.label}</span>`;
-    }
-    return label; // falls Label nicht gefunden wird
-  }
 
-  // Szenarien zu HTML umwandeln (darstellung unter Problemstellung) — optional
-  const htmlScenarios = scenarios.map(scenario => {
-    const optionsHtml = scenario.options.map(getLabelAsLink).join(", ");
-    return `
-      <div class="scenario">
-        <h3>${scenario.title}</h3>
-        <p>${optionsHtml}</p>
-      </div>
-    `;
-  }).join("\n");
+  // helpers: room id in URL (link still contains ?room=ID but kept hidden in UI)
+  function qs(name){ const params = new URLSearchParams(window.location.search); return params.get(name); }
+  function setQs(name,val){ const url = new URL(window.location.href); url.searchParams.set(name,val); window.history.replaceState({},'',url); }
+  function makeId(n=6){ const chars='abcdefghijklmnopqrstuvwxyz0123456789'; let s=''; for(let i=0;i<n;i++) s+=chars[Math.floor(Math.random()*chars.length)]; return s; }
 
-  document.getElementById("scenarios")?.insertAdjacentHTML("beforeend", htmlScenarios);
-
-  // Hilfsfunktionen für Query-String, ID-Erzeugung
-  function qs(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }
-  function setQs(name, val) {
-    const url = new URL(window.location.href);
-    url.searchParams.set(name, val);
-    window.history.replaceState({}, '', url);
-  }
-  function makeId(n = 6) {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let s = '';
-    for (let i = 0; i < n; i++) s += chars[Math.floor(Math.random() * Math.random() * chars.length)];
-    return s;
-  }
-
-  let roomId = qs('room');
-  if (!roomId) {
-    roomId = makeId();
-    setQs('room', roomId);
-  }
-
-  const roomStateRef = ref(db, `/rooms/${roomId}/state`);
-  const roomVotesRef = ref(db, `/rooms/${roomId}/votes`);
-  const roomPresenterRef = ref(db, `/rooms/${roomId}/presenter`);
-
-  // Client-Id erzeugen oder laden
-  let clientId = localStorage.getItem('flash_clientId');
-  if (!clientId) {
-    clientId = 'c_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-    localStorage.setItem('flash_clientId', clientId);
-  }
-
-  // DOM-Referenzen
+  // DOM refs
   const problemTitle = document.getElementById('problemTitle');
   const cardsEl = document.getElementById('cards');
   const reflexionEl = document.getElementById('reflexion');
@@ -497,290 +478,330 @@
   const resultsBtn = document.getElementById('resultsBtn');
   const leaveRoomBtn = document.getElementById('leaveRoom');
 
-  // Statusvariablen
+  const joinRoomBtn = document.getElementById('joinRoomBtn');
+  const qrPanel = document.getElementById('qrPanel');
+  const qrCanvas = document.getElementById('qrCanvas');
+  const qrLinkEl = document.getElementById('qrLink');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
+  const hideQrBtn = document.getElementById('hideQrBtn');
+
+  // client id
+  let clientId = localStorage.getItem('flash_clientId');
+  if(!clientId){ clientId = 'c_' + Date.now() + '_' + Math.floor(Math.random()*10000); localStorage.setItem('flash_clientId', clientId); }
+
+  // state
+  let roomId = qs('room'); // may be null initially
+  let roomStateRef = null;
+  let roomVotesRef = null;
+  let roomPresenterRef = null;
+
   let currentProblemIndex = 0;
   let presenterResultsShown = false;
   let votes = {};
   let presenterId = null;
   let isPresenter = false;
 
-  // Rendering Funktion
-  function renderScenarioForClient() {
+  // Presenter password (client-side simple)
+  const PRESENTER_PASSWORD = "Geheim!";
+
+  // ---------- DB listener attachment (only when roomId exists) ----------
+  function attachDBRefsAndListeners(){
+    if(!roomId) return;
+    roomStateRef = ref(db, `/rooms/${roomId}/state`);
+    roomVotesRef = ref(db, `/rooms/${roomId}/votes`);
+    roomPresenterRef = ref(db, `/rooms/${roomId}/presenter`);
+
+    // DB listeners
+    onValue(roomStateRef, (snap)=>{ 
+      const data = snap.val();
+      if(!data){
+        set(roomStateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp() }).catch(()=>{});
+        currentProblemIndex = 0;
+        renderScenarioForClient();
+        return;
+      }
+      currentProblemIndex = data.currentProblemIndex || 0;
+      renderScenarioForClient();
+    });
+
+    onValue(roomVotesRef, (snap)=>{ votes = snap.val() || {}; applyVotesToUI(); });
+
+    onValue(roomPresenterRef, (snap)=>{ presenterId = snap.val(); isPresenter = presenterId === clientId; updatePresenterControls(); applyVotesToUI(); });
+  }
+
+  // ---------- UI rendering and voting code (mostly unchanged) ----------
+  function renderScenarioForClient(){
     const s = scenarios[currentProblemIndex];
-    problemTitle.textContent = s.title;
+    problemTitle.textContent = s ? s.title : 'Warte auf Problem...';
+    // hide reflexion box whenever we render a new scenario
+    reflexionEl.style.display = 'none';
+    reflexionEl.setAttribute('aria-hidden','true');
+    reflexionEl.textContent = '';
+
     cardsEl.innerHTML = '';
 
-    s.options.forEach(optLabel => {
-      const kiObj = KIs.find(k => k.label === optLabel) || { label: optLabel, info: "(keine Info verfügbar)" };
+    if(!s) return;
+
+    s.options.forEach(optLabel=>{
+      const kiObj = KIs.find(k=>k.label===optLabel) || {label:optLabel, info:"(keine Info verfügbar)", url:null};
       const card = document.createElement('div');
       card.className = 'card';
 
-      const labelEl = document.createElement('div');
-      labelEl.className = 'label';
-      if (kiObj.url) {
-        const link = document.createElement('a');
-        link.href = kiObj.url;
-        link.target = '_blank';
-        link.title = kiObj.info;
-        link.textContent = kiObj.label;
-        link.style.color = 'inherit';
-        link.style.textDecoration = 'none';
-        link.addEventListener('click', e => e.stopPropagation());
-        labelEl.appendChild(link);
-      } else {
-        labelEl.textContent = kiObj.label;
-      }
+      const linkHtml = kiObj.url ? `<div class="ki-link-wrap"><a class="ki-link" href="${kiObj.url}" target="_blank" rel="noopener noreferrer">${kiObj.url}</a></div>` : '';
 
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-face card-front" aria-hidden="false">
             <div class="vote-badge">0</div>
             <button class="favorite-btn" title="Als Favorit wählen" aria-label="Als Favorit wählen">☆</button>
+            <div class="label">${kiObj.label}</div>
           </div>
           <div class="card-face card-back" aria-hidden="true">
             <div class="back-text">${kiObj.info}</div>
+            ${linkHtml}
             <button class="question-btn" aria-label="Reflexionsfrage">Frage</button>
           </div>
         </div>
       `;
 
-      card.querySelector('.card-front').appendChild(labelEl);
-
       const favBtn = card.querySelector('.favorite-btn');
       const qBtn = card.querySelector('.question-btn');
 
-      card.addEventListener('click', e => {
-        if (e.target === favBtn || e.target === qBtn || e.target.tagName === 'A') return;
+      // Flip on click (ignore fav and question buttons)
+      card.addEventListener('click', (e)=>{
+        if(e.target === favBtn || e.target === qBtn) return;
         card.classList.toggle('flipped');
         const front = card.querySelector('.card-front');
         const back = card.querySelector('.card-back');
-        if (card.classList.contains('flipped')) {
-          front.setAttribute('aria-hidden', 'true');
-          back.setAttribute('aria-hidden', 'false');
+        if(card.classList.contains('flipped')){
+          front.setAttribute('aria-hidden','true'); back.setAttribute('aria-hidden','false');
         } else {
-          front.setAttribute('aria-hidden', 'false');
-          back.setAttribute('aria-hidden', 'true');
+          front.setAttribute('aria-hidden','false'); back.setAttribute('aria-hidden','true');
         }
       });
 
-      favBtn.addEventListener('click', e => {
+      // Favorite click -> set/remove vote in DB (if room exists)
+      favBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
+        if(!roomId){ alert('Bitte erstmal einem Raum beitreten (Raum erstellen) oder einen Raum-Link öffnen.'); return; }
         const currentVote = votes[clientId] || null;
         const newVote = currentVote === kiObj.label ? null : kiObj.label;
-        set(ref(db, `/rooms/${roomId}/votes/${clientId}`), newVote).catch(err => console.error('vote write failed', err));
+        set(ref(db, `/rooms/${roomId}/votes/${clientId}`), newVote).catch(err=>console.error('vote write failed',err));
       });
 
-      qBtn.addEventListener('click', e => {
+      // Question button shows reflexion text (does NOT flip back)
+      qBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
         reflexionEl.style.display = 'block';
-        reflexionEl.textContent = kiObj.label === "Analog"
-          ? "Wäre diese analoge Lösung praktikabel in deiner Einrichtung?"
-          : `Was wäre der Vorteil, ${kiObj.label} in deiner Gruppe einzusetzen?`;
-        reflexionEl.setAttribute('aria-hidden', 'false');
+        reflexionEl.textContent = kiObj.label === "Analog" ?
+          "Wäre diese analoge Lösung praktikabel in deiner Einrichtung?" :
+          `Was wäre der Vorteil, ${kiObj.label} in deiner Gruppe einzusetzen?`;
+        // set aria-hidden for reflexion container for screen readers
+        reflexionEl.setAttribute('aria-hidden','false');
       });
+
+      // Prevent link clicks from flipping the card; allow normal navigation (opens in new tab)
+      const linkEl = card.querySelector('.ki-link');
+      if(linkEl){
+        linkEl.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          // default behavior opens in new tab because of target="_blank"
+        });
+      }
 
       cardsEl.appendChild(card);
     });
 
+    // clear winner classes and update UI
     clearWinnerState();
     applyVotesToUI();
     updatePresenterControls();
   }
 
-  // UI Updates mit Votes
-  function applyVotesToUI() {
+  // Update UI with votes and counts.
+  function applyVotesToUI(){
     const counts = {};
-    Object.values(votes || {}).forEach(label => {
-      if (!label) return;
-      counts[label] = (counts[label] || 0) + 1;
+    Object.values(votes||{}).forEach(label=>{
+      if(!label) return;
+      counts[label] = (counts[label]||0)+1;
     });
 
-    document.querySelectorAll('.card').forEach(card => {
+    document.querySelectorAll('.card').forEach(card=>{
       const label = card.querySelector('.label')?.textContent;
       const favBtn = card.querySelector('.favorite-btn');
       const badge = card.querySelector('.vote-badge');
-      if (!label || !favBtn) return;
+      if(!label || !favBtn) return;
 
-      if (votes[clientId] === label) {
-        favBtn.classList.add('fav');
-        favBtn.textContent = '★';
+      if(votes[clientId] === label){
+        favBtn.classList.add('fav'); favBtn.textContent = '★';
       } else {
-        favBtn.classList.remove('fav');
-        favBtn.textContent = '☆';
+        favBtn.classList.remove('fav'); favBtn.textContent = '☆';
       }
 
       const n = counts[label] || 0;
       badge.textContent = n;
-      if (presenterResultsShown && isPresenter) {
+      if(presenterResultsShown && isPresenter){
         badge.classList.add('show');
       } else {
         badge.classList.remove('show');
       }
     });
 
-    if (isPresenter && presenterResultsShown) {
+    if(isPresenter && presenterResultsShown){
       sortCardsByVotes(counts);
       triggerWinnerAnimation(counts);
     } else {
-      if (!presenterResultsShown) {
+      if(!presenterResultsShown){
         clearWinnerState();
         restoreOriginalOrder();
       }
     }
   }
 
-  // Karten sortieren nach Votes
-  function sortCardsByVotes(counts) {
+  function sortCardsByVotes(counts){
     const cardEls = Array.from(cardsEl.children);
-    if (cardEls.length <= 1) return;
+    if(cardEls.length <= 1) return;
 
     const map = new Map(cardEls.map(c => [c, c.querySelector('.label')?.textContent || '']));
 
     const beforeRects = new Map();
     cardEls.forEach(c => beforeRects.set(c, c.getBoundingClientRect()));
 
-    const sorted = Array.from(cardEls).sort((a, b) => {
+    const sorted = Array.from(cardEls).sort((a,b)=>{
       const la = map.get(a), lb = map.get(b);
       const ca = counts[la] || 0, cb = counts[lb] || 0;
-      if (cb !== ca) return cb - ca;
+      if(cb !== ca) return cb - ca;
       return la.localeCompare(lb);
     });
 
     let already = true;
-    for (let i = 0; i < sorted.length; i++) { if (sorted[i] !== cardEls[i]) { already = false; break; } }
-    if (already) return;
+    for(let i=0;i<sorted.length;i++){ if(sorted[i] !== cardEls[i]){ already=false; break; } }
+    if(already) return;
 
     sorted.forEach(el => cardsEl.appendChild(el));
 
     sorted.forEach(c => {
       const before = beforeRects.get(c);
       const after = c.getBoundingClientRect();
-      if (!before || !after) return;
+      if(!before || !after) return;
       const dx = before.left - after.left;
       const dy = before.top - after.top;
       c.style.transform = `translate(${dx}px, ${dy}px)`;
       c.style.transition = 'transform .6s ease';
       c.getBoundingClientRect();
-      requestAnimationFrame(() => { c.style.transform = ''; });
-      const onTransitionEnd = (ev) => {
-        if (ev.propertyName === 'transform') { c.style.transition = ''; c.removeEventListener('transitionend', onTransitionEnd); }
+      requestAnimationFrame(()=> { c.style.transform = ''; });
+      const onTransitionEnd = (ev)=>{
+        if(ev.propertyName === 'transform'){ c.style.transition = ''; c.removeEventListener('transitionend', onTransitionEnd); }
       };
       c.addEventListener('transitionend', onTransitionEnd);
     });
   }
 
-  // Gewinneranimation
-  function triggerWinnerAnimation(counts) {
+  function triggerWinnerAnimation(counts){
     const max = Math.max(...Object.values(counts).concat(0));
-    if (max === 0) return;
+    if(max === 0) return;
     const winners = Object.keys(counts).filter(l => counts[l] === max);
-    if (winners.length === 0) return;
+    if(winners.length === 0) return;
 
     const labelToCard = {};
-    document.querySelectorAll('.card').forEach(card => {
+    document.querySelectorAll('.card').forEach(card=>{
       const lab = card.querySelector('.label')?.textContent;
-      if (lab) labelToCard[lab] = card;
+      if(lab) labelToCard[lab] = card;
     });
 
     clearWinnerState();
 
-    winners.forEach((label) => {
+    winners.forEach((label)=>{
       const card = labelToCard[label];
-      if (!card) return;
+      if(!card) return;
       card.classList.add('animating');
       const onAnimEnd = () => { card.classList.remove('animating'); card.classList.add('winner'); card.removeEventListener('animationend', onAnimEnd); };
-      const removeTimeout = setTimeout(() => { if (card.classList.contains('animating')) { card.classList.remove('animating'); card.classList.add('winner'); } }, 900);
-      card.addEventListener('animationend', (ev) => { clearTimeout(removeTimeout); onAnimEnd(); }, { once: true });
+      const removeTimeout = setTimeout(()=>{ if(card.classList.contains('animating')){ card.classList.remove('animating'); card.classList.add('winner'); } }, 900);
+      card.addEventListener('animationend', (ev)=>{ clearTimeout(removeTimeout); onAnimEnd(); }, { once:true });
     });
   }
 
-  // Gewinnerzustand löschen
-  function clearWinnerState() { document.querySelectorAll('.card').forEach(card => { card.classList.remove('animating'); card.classList.remove('winner'); }); }
+  function clearWinnerState(){ document.querySelectorAll('.card').forEach(card=>{ card.classList.remove('animating'); card.classList.remove('winner'); }); }
 
-  // Originale Reihenfolge wiederherstellen
-  function restoreOriginalOrder() {
+  function restoreOriginalOrder(){
     const s = scenarios[currentProblemIndex];
+    if(!s) return;
     const labels = s.options;
     const map = new Map();
-    document.querySelectorAll('.card').forEach(card => {
+    document.querySelectorAll('.card').forEach(card=>{
       const lab = card.querySelector('.label')?.textContent;
-      if (lab) map.set(lab, card);
+      if(lab) map.set(lab, card);
     });
-    labels.forEach(l => { const el = map.get(l); if (el) cardsEl.appendChild(el); });
+    labels.forEach(l => { const el = map.get(l); if(el) cardsEl.appendChild(el); });
   }
 
-  const PRESENTER_PASSWORD = "Geheim!";
-
-  async function claimPresenter() {
-    try {
+  // ---------- Presenter controls ----------
+  async function claimPresenter(){
+    try{
+      if(!roomId){ alert('Bitte erst einem Raum beitreten oder einen Raum-Link öffnen.'); return; }
       const presRef = ref(db, `/rooms/${roomId}/presenter`);
-      await runTransaction(presRef, (current) => {
-        if (current === null || current === clientId) return clientId;
+      await runTransaction(presRef, (current)=>{
+        if(current === null || current === clientId) return clientId;
         return;
       });
-    } catch (err) { console.error('claim failed', err); }
+    }catch(err){ console.error('claim failed', err); }
   }
 
-  claimPresenterBtn.addEventListener('click', async () => {
+  claimPresenterBtn.addEventListener('click', async ()=>{
     const pwd = prompt('Presenter-Passwort eingeben:');
-    if (pwd === null) return;
-    if (pwd === PRESENTER_PASSWORD) { await claimPresenter(); } else { alert('Falsches Passwort.'); }
+    if(pwd === null) return;
+    if(pwd === PRESENTER_PASSWORD){ await claimPresenter(); } else { alert('Falsches Passwort.'); }
   });
 
-  async function releasePresenter() {
-    try {
+  async function releasePresenter(){
+    try{
+      if(!roomId) return;
       const presRef = ref(db, `/rooms/${roomId}/presenter`);
-      await runTransaction(presRef, (current) => { if (current === clientId) return null; return; });
-    } catch (err) { console.error('release failed', err); }
+      await runTransaction(presRef, (current)=>{ if(current===clientId) return null; return; });
+    }
+    catch(err){ console.error('release failed', err); }
   }
 
-  function toggleResults() {
-    if (!isPresenter) return;
+  function toggleResults(){
+    if(!isPresenter) return;
     presenterResultsShown = !presenterResultsShown;
     updatePresenterControls();
     applyVotesToUI();
   }
 
-  function nextProblem() {
-    if (!isPresenter) return;
+  function nextProblem(){
+    if(!isPresenter) return;
     presenterResultsShown = false;
     clearWinnerState();
+    // Hide reflexion/question when moving to the next problem
+    reflexionEl.style.display = 'none';
+    reflexionEl.setAttribute('aria-hidden','true');
+    reflexionEl.textContent = '';
     const newIndex = (currentProblemIndex + 1) % scenarios.length;
-    update(roomStateRef, { currentProblemIndex: newIndex, updatedAt: serverTimestamp() }).catch(err => console.error(err));
-    // Reset votes for next problem
-    set(ref(db, `/rooms/${roomId}/votes`), null).catch(() => { });
+    update(roomStateRef, { currentProblemIndex: newIndex, updatedAt: serverTimestamp() }).catch(err=>console.error(err));
+    // reset votes for next problem:
+    set(ref(db, `/rooms/${roomId}/votes`), null).catch(()=>{});
   }
 
-  onValue(roomStateRef, (snap) => {
-    const data = snap.val() || {};
-    if (!data.currentProblemIndex && data.currentProblemIndex !== 0) {
-      set(roomStateRef, {
-        currentProblemIndex: 0,
-        showVoting: true,
-        createdAt: serverTimestamp()
-      }).catch(() => { });
-    }
-    currentProblemIndex = Math.min(data.currentProblemIndex ?? 0, scenarios.length - 1);
-    renderScenarioForClient();
+  releasePresenterBtn.addEventListener('click', async ()=>{ const ok = confirm('Presenter freigeben?'); if(!ok) return; await releasePresenter(); });
+  resultsBtn.addEventListener('click', ()=>{ if(isPresenter) toggleResults(); });
+  nextBtn.addEventListener('click', ()=>{ if(isPresenter) nextProblem(); });
+
+  leaveRoomBtn.addEventListener('click', async ()=>{ 
+    if(isPresenter){ await releasePresenter(); } 
+    const url = new URL(window.location.href); 
+    url.searchParams.delete('room'); 
+    window.location.href = url.toString();
   });
 
-  onValue(roomVotesRef, (snap) => { votes = snap.val() || {}; applyVotesToUI(); });
-
-  onValue(roomPresenterRef, (snap) => { presenterId = snap.val(); isPresenter = presenterId === clientId; updatePresenterControls(); applyVotesToUI(); });
-
-  releasePresenterBtn.addEventListener('click', async () => { const ok = confirm('Presenter freigeben?'); if (!ok) return; await releasePresenter(); });
-  resultsBtn.addEventListener('click', () => { if (isPresenter) toggleResults(); });
-  nextBtn.addEventListener('click', () => { if (isPresenter) nextProblem(); });
-  leaveRoomBtn.addEventListener('click', async () => { if (isPresenter) { await releasePresenter(); } const url = new URL(window.location.href); url.searchParams.delete('room'); window.location.href = url.toString(); });
-
-  function updatePresenterControls() {
-    if (isPresenter) {
+  function updatePresenterControls(){
+    if(isPresenter){
       nextBtn.style.display = 'inline-block';
       resultsBtn.style.display = 'inline-block';
       claimPresenterBtn.style.display = 'none';
       releasePresenterBtn.style.display = 'inline-block';
       resultsBtn.textContent = presenterResultsShown ? 'Ergebnisse verbergen' : 'Ergebnisse';
-    } else {
+    }else{
       nextBtn.style.display = 'none';
       resultsBtn.style.display = 'none';
       claimPresenterBtn.style.display = 'inline-block';
@@ -788,17 +809,88 @@
     }
   }
 
-  // Bootstrap
-  renderScenarioForClient();
+  // ---------- Join room + QR logic ----------
+  function showJoinControlsForNoRoom(){
+    // show join button, hide QR if any
+    joinRoomBtn.style.display = 'inline-block';
+    qrPanel.style.display = 'none';
+    // Presenter controls should not be active before a room exists
+    claimPresenterBtn.style.display = 'inline-block';
+    nextBtn.style.display = 'none';
+    resultsBtn.style.display = 'none';
+    releasePresenterBtn.style.display = 'none';
+  }
 
-  // Presenter automatisch freigeben bei Verlassen
-  window.addEventListener('beforeunload', async () => {
-    try {
+  async function createRoomAndShowQR(){
+    // create a new room id, write initial state to DB and attach listeners
+    roomId = makeId(6);
+    setQs('room', roomId);
+    // write initial room state including creator
+    const stateRef = ref(db, `/rooms/${roomId}/state`);
+    await set(stateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp(), creator: clientId }).catch(console.error);
+    // optionally mark creator in room metadata
+    await set(ref(db, `/rooms/${roomId}/participants/${clientId}`), { joinedAt: serverTimestamp(), role: 'creator' }).catch(()=>{});
+    attachDBRefsAndListeners();
+    // show QR code and link
+    const link = window.location.href;
+    qrLinkEl.textContent = link;
+    qrPanel.style.display = 'block';
+    // generate QR to canvas (using qrcode lib)
+    try{
+      // clear previous canvas
+      qrCanvas.width = 140; qrCanvas.height = 140;
+      await QRCode.toCanvas(qrCanvas, link, { width: 140 });
+    }catch(e){
+      // fallback: show link text only
+      console.warn('QR generation failed', e);
+    }
+    joinRoomBtn.style.display = 'none';
+  }
+
+  joinRoomBtn.addEventListener('click', async ()=>{
+    const ok = confirm('Einen neuen Raum erstellen und QR-Link anzeigen?');
+    if(!ok) return;
+    await createRoomAndShowQR();
+  });
+
+  copyLinkBtn.addEventListener('click', async ()=>{
+    const txt = qrLinkEl.textContent;
+    try{
+      await navigator.clipboard.writeText(txt);
+      copyLinkBtn.textContent = 'Kopiert!';
+      setTimeout(()=> copyLinkBtn.textContent = 'Link kopieren', 1500);
+    }catch(e){
+      alert('Kopieren fehlgeschlagen. Bitte manuell kopieren: ' + txt);
+    }
+  });
+
+  hideQrBtn.addEventListener('click', ()=>{ qrPanel.style.display = 'none'; });
+
+  // If the page is opened with ?room=ID we should attach to that room automatically.
+  if(roomId){
+    // Hide join button; attach listeners to existing room
+    joinRoomBtn.style.display = 'none';
+    attachDBRefsAndListeners();
+  } else {
+    showJoinControlsForNoRoom();
+  }
+
+  // ---------- bootstrap rendering ----------
+  // if a room already exists we render once listeners attach; otherwise we show placeholder text
+  if(!roomId){
+    problemTitle.textContent = 'Bitte Raum beitreten oder einen Raum-Link öffnen.';
+    cardsEl.innerHTML = '';
+  }
+
+  // best-effort release presenter on unload
+  window.addEventListener('beforeunload', async ()=>{
+    try{
+      if(!roomPresenterRef) return;
       const presSnapshot = await get(roomPresenterRef);
-      if (presSnapshot && presSnapshot.val() === clientId) {
-        await runTransaction(roomPresenterRef, (current) => { if (current === clientId) return null; return; });
+      if(presSnapshot && presSnapshot.val() === clientId){
+        await runTransaction(roomPresenterRef, (current)=>{ if(current===clientId) return null; return; });
       }
-    } catch (e) { /* ignore */ }
+    }catch(e){/* ignore */}
   });
 </script>
 </body>
