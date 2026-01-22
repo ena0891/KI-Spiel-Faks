@@ -107,6 +107,21 @@
   .problem h2{margin:0;font-size:18px;color:#07203a;font-weight:700;}
   .problem p{margin:6px 0 0 0;color:var(--muted);font-size:13px;}
 
+  /* Reflexion / question box (light red) */
+  #reflexion{
+    display:none;
+    margin-top:12px;
+    padding:12px;
+    border-radius:10px;
+    background: linear-gradient(180deg,#fff5f5,#ffecec);
+    border:1px solid #ffd2d2;
+    color:#5a0b0b;
+    max-width:100%;
+    box-shadow: 0 4px 12px rgba(237, 100, 100, 0.06);
+    font-size:14px;
+    line-height:1.3;
+  }
+
   .cards{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -202,6 +217,15 @@
     font-size:13px;
   }
 
+  .ki-link{
+    display:inline-block;
+    margin-top:8px;
+    color:var(--accent);
+    font-size:13px;
+    text-decoration:underline;
+    word-break:break-all;
+  }
+
   .vote-badge{
     position:absolute;top:10px;left:10px;background:#042a47;color:white;padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px;display:none;
   }
@@ -220,6 +244,21 @@
   .card.winner .card-back { background: linear-gradient(180deg,#fff59d,#fff176); }
 
   .footer{ margin-top:14px;font-size:12px;color:var(--muted);text-align:center; }
+
+  /* QR panel */
+  .qr-panel{
+    margin-top:12px;
+    padding:12px;
+    border-radius:10px;
+    background: linear-gradient(180deg,#ffffff,#f7fbff);
+    border:1px solid rgba(3,102,153,0.06);
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .qr-panel .qr-box{ width:140px; height:140px; display:flex; align-items:center; justify-content:center; background:white; border-radius:8px; box-shadow: 0 2px 6px rgba(2,6,23,0.04); }
+  .qr-panel .qr-actions{ display:flex; flex-direction:column; gap:8px; }
+  .qr-link{ font-size:13px; color:var(--muted); word-break:break-all; max-width:420px; }
 
   @media (max-width:900px){
     .cards{ grid-template-columns: repeat(2,1fr); }
@@ -244,6 +283,7 @@
     </div>
 
     <div class="controls" role="toolbar" aria-label="Presenter controls">
+      <button id="joinRoomBtn" class="small primary" title="Raum beitreten">Raum beitreten</button>
       <button id="claimPresenter" class="small primary">Presenter anmelden</button>
       <button id="releasePresenter" class="small" style="display:none">Presenter freigeben</button>
       <button id="nextBtn" class="small" style="display:none">Nächstes Problem</button>
@@ -256,12 +296,29 @@
     <h2 id="problemTitle">Problem</h2>
   </div>
 
+  <div id="qrPanel" style="display:none">
+    <div class="qr-panel">
+      <div class="qr-box" id="qrBox"><canvas id="qrCanvas"></canvas></div>
+      <div class="qr-actions">
+        <div class="qr-link" id="qrLink"></div>
+        <div style="display:flex;gap:8px;">
+          <button id="copyLinkBtn" class="small">Link kopieren</button>
+          <button id="hideQrBtn" class="small">QR verbergen</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Andere Teilnehmende scannen den QR oder öffnen den Link, um in denselben Raum zu kommen.</div>
+      </div>
+    </div>
+  </div>
+
   <div class="cards" id="cards" aria-live="polite" aria-atomic="true"></div>
 
   <div id="reflexion" style="display:none" aria-hidden="true"></div>
 
   <div class="footer" aria-hidden="true">© Spiel — teile den Raum-Link privat mit deinen Teilnehmenden</div>
 </div>
+
+<!-- QR library (browser build) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -293,8 +350,8 @@
 
   // ---- fixed: KIs must be a flat, valid array of objects (no syntax errors)
   const KIs = [
-    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com/en-us/microsoft-365/copilot" },
-    { label: "ChatGPT", info: "KI zum Schreiben, Erklären, Zusammenfassen und Entwickeln pädagogischer Ideen. Funktioniert in vielen Sprachen.", url: "https://chat.openai.com" },
+    { label: "Microsoft Copilot", info: "In Microsoft-Programme integrierter KI-Assistent. Schreibt Inhalte, fasst Mails zusammen und erstellt Dokumente. Nutzung mit Microsoft 365 Lizenz.", url: "https://www.microsoft.com" },
+    { label: "ChatGPT", info: "Wohl bekannteste KI, ist ein Large Langage Model.", url: "https://chat.openai.com" },
     { label: "Notion AI", info: "KI in Notion zum Strukturieren, Sortieren und Schreiben von Notizen und Dokumenten.", url: "https://www.notion.so" },
     { label: "Grammarly", info: "KI für englische Texte. Prüft Grammatik, Rechtschreibung und Stil.", url: "https://www.grammarly.com" },
     { label: "LanguageTool", info: "KI für deutsche Texte. Prüft Grammatik, Stil und Satzbau. Browser-Add-on verfügbar.", url: "https://languagetool.org" },
@@ -307,7 +364,7 @@
     { label: "AIVA", info: "Komponiert Musik für Projekte, Theater oder Videos in vielen Stilen.", url: "https://www.aiva.ai" },
     { label: "Scribble Diffusion", info: "Verwandelt Kinderkritzeleien in klare digitale Zeichnungen.", url: "https://scribblediffusion.com" },
     { label: "AutoDraw", info: "Google-Tool, das Skizzen automatisch erkennt und verbessert.", url: "https://www.autodraw.com" },
-    { label: "Gemini", info: "Google-KI, die Wissen erklärt, Antworten gibt und Unterrichtsideen liefert.", url: "https://gemini.google.com" },
+    { label: "Gemini", info: "Google-KI, die Fragen beantwortet und Wissen kindgerecht erklärt.", url: "https://gemini.google.com" },
     { label: "Claude", info: "KI mit Fokus auf Sicherheit, Ethik und reflektierte Antworten.", url: "https://claude.ai" },
     { label: "Speechify", info: "Liest Texte mit natürlich klingenden Stimmen vor.", url: "https://speechify.com" },
     { label: "ElevenLabs", info: "Professionelle Text-to-Speech-KI mit emotionalen Stimmen.", url: "https://elevenlabs.io" },
@@ -323,7 +380,7 @@
     { label: "Elicit", info: "KI zur Recherche von Studien und Wissensquellen.", url: "https://elicit.org" },
     { label: "Askify", info: "Fasst YouTube-Videos automatisch zusammen.", url: "https://www.askify.ai" },
     { label: "Glasp", info: "Markiert und fasst Fachtexte und Videos zusammen.", url: "https://glasp.co" },
-    { label: "Teachable Machine", info: "Kinder können eigene KI-Modelle für Bilder und Geräusche trainieren.", url: "https://teachablemachine.withgoogle.com" },
+    { label: "Teachable Machine", info: "Dort können eigene KI-Modelle für Bilder und Geräusche trainiert werden.", url: "https://teachablemachine.withgoogle.com" },
     { label: "Poem Portraits", info: "Kreative Text- und Bild-KI für Poesie-Projekte.", url: "https://artsexperiments.withgoogle.com/poemportraits" },
     { label: "AI Duet", info: "Musik-KI, die live auf gespielte Melodien reagiert.", url: "https://experiments.withgoogle.com/ai/ai-duet" },
     { label: "Runway ML", info: "Video-KI, die Clips, Animationen und Effekte erzeugt.", url: "https://runwayml.com" },
@@ -352,45 +409,57 @@
   // A set of clean, valid scenarios. Each options array should reference labels present in KIs (or use "Analog").
   const scenarios = [
     {
-      title: "In deiner Kindergartengruppe bearbeitet ihr aktuell das Thema Transportmittel. Du möchtest mit den Kindern einen Ausflug ins Deutsche Museum machen und eine Führung buchen welche speziell auf die dort ausgestellten Schiffe, Flugzeuge und Autos eingeht. Was kann dir dabei helfen die Führung zu buchen?",
+      title: "In deiner Kindergartengruppe bearbeitet ihr aktuell das Thema Transportmittel. Du möchtest mit den Kindern einen Ausflug ins Deutsche Museum machen und eine Führung buchen, die altersgerecht ist.",
       options: ["Analog","ChatGPT","Microsoft Copilot","Perplexity"]
     },
     {
-      title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schuh-binde-lied mit den Kindern machen, welches die Bewegung erklärt und untermalt. Wie gehst du vor?",
+      title: "Du arbeitest in einer Elterninitiative. Seit mehreren Monaten gibt es ein Konflikt zwischen einem Vater und einer Kollegin. Dieser ist nicht einverstanden mit den Projekten, welche vorgestellt wurden.",
+      options: ["Analog","ChatGPT","Runway ML","Educandy"]
+    },
+    {
+      title: "In deiner Vorschulgruppe lernen die Kinder aktuell Schuhe binden. Du möchtest ein Schuh‑binde‑Lied mit den Kindern entwickeln, das die Bewegungsabfolge erklärt und musikalisch unterstützt.",
       options: ["Analog","AI Duet","AIVA","Suno"]
     },
     {
-      title: "Du arbeitest in einem Waldkindergarten. Jedes Jahr erstellen die Kinder ein Herbarium mit getrockneten Blättern und Blumen. Mark (5 J.) frägt dich nach dem Namen einer dir unbekannten Pflanze.",
+      title: "Du arbeitest in einem Waldkindergarten. Jedes Jahr erstellen die Kinder ein Herbarium mit getrockneten Blättern und Blumen. Mark (5 J.) fragt dich nach dem Namen einer dir unbekannten Pflanze.",
       options: ["Analog","Google Lense","Gemini","Perplexity"]
     },
     {
-      title: "Für die Hausaufgabenzeit in deiner Tagesheim-Klasse möchtest du während der Stillarbeit Hintergrundmusik laufen lassen.",
+      title: "Für die Hausaufgabenzeit in deiner Tagesheim‑Klasse möchtest du während der Stillarbeit dezent Hintergrundmusik laufen lassen, die die Konzentration fördert und nicht ablenkt.",
       options: ["Analog","Soundraw","Mubert","AIVA"]
     },
     {
-      title: "Das traditionelle Wintertheatherstück welches die Hort Kinder (6-10 Jahre) jedes Jahr aufführen steht vor der Tür. Normalerweise wählen die Kinder eines von fünf Winterbüchern, welches du dann in ein Theaterstück umwandelst. Dieses Jahr hast du erst 3 Bücher, welche die Kinder noch nicht kennen. Dir sind die Ideen für neue Winterbücher ausgegangen.",
+      title: "Die von dir betreeute Wohnheimgruppe (12 bis 19 J.) hat beschlossen ein Videoprojekt zu machen indem sich die Jugendliche selbst auf eine Kreative Art vorstellen wollen.",
+      options: ["Analog","MyHeritage Deep Nostalgia","Runway ML","InVideo"]
+    },
+    {
+      title: "Das traditionelle Wintertheaterstück, das die Hortkinder (6–10 Jahre) jedes Jahr aufführen, steht vor der Tür. Normalerweise wählen die Kinder eines von fünf Winterbüchern aus.",
       options: ["Analog","NextThreeBooks","Speechify","TTSReader"]
     },
     {
-      title: "Du bist Erzieher:in in einem deutsch-französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info-Blatt über das neue Bastelprojekt verschicken. Was kann dir dabei helfen?",
-      options: ["Analog","DeepL Translate","Gemini","Envision AI"]
+      title: "Du bist Erzieher:in in einem deutsch‑französischen Kindergarten. Einige Eltern sprechen nur Französisch, andere nur Deutsch. Du willst ein Info‑Blatt über das neue Bastelprojekt erstellen.",
+      options: ["Analog","DeepL Translate","DeepL Write","Envision AI"]
     },
     {
-      title: "Du willst eine kurze Umfrage an die Eltern schicken, um Feedback zu einem neuen Projekt zu sammeln. Das Feedback sollte anonym sein.",
+      title: "Du willst eine kurze Umfrage an die Eltern schicken, um Feedback zu einem neuen Projekt zu sammeln. Das Feedback sollte anonym sein und sowohl offene als auch geschlossene Fragen enthalten.",
       options: ["Analog","ChatGPT","Microsoft Copilot","ConkerAI"]
     },
     {
-      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält.",
+      title: "Du möchtest für die kommende Elternversammlung einen ansprechenden Aushang erstellen, der die wichtigsten Infos zur Anmeldung, Uhrzeiten und Themen enthält und leicht gedruckt werden kann.",
       options: ["Analog","Canva Magic Studio","DALL·E 3","AutoDraw"]
     },
     {
-      title: "Ihr wollt aus den Erzählungen der Kinder Quizaufgaben erstellen. Welche Tools können dabei unterstützen?",
+      title: "Ihr wollt aus den Erzählungen der Kinder Quizaufgaben erstellen. Welche Tools können dabei unterstützen, passende Fragen automatisch zu generieren und unterschiedliche Schwierigkeitsstufen anzubieten?",
       options: ["Analog","Quizlet","QuizGecko","ChatGPT"]
     },
     {
-      title: "In deiner Krippe-Gruppe möchtest du mehr Angebote schaffen welche wissenschaftlich fundiert frühkindliche Sprachentwicklung fördern. Circa die Hälfte der Kinder in deinem Hort wachsen bilingual auf. Das möchtest du in deiner Förderung beachten. Allerdingst kennst du dich in der Thematik noch nicht so gut aus. Wie gehst du vor?",
+      title: "In deiner Krippe‑Gruppe möchtest du mehr Angebote schaffen, die wissenschaftlich fundierte frühkindliche Sprachentwicklung fördern.",
       options: ["Analog","Elicit","Glasp","ChatGPT"]
-    }
+    },
+    {
+      title: "Du sollst mit Kindern und Jugendlichen im Alter von 9 bis 14 einen Workshop durchführen indem sie KIs näher kennenlernen. Welche KI würdest du dir gerne mit den Kindern anschauen?",
+      options: ["Pika Labs","Poem Portraits","Teachable Machine","ChatGPT"]
+    },
   ];
 
 
@@ -398,17 +467,6 @@
   function qs(name){ const params = new URLSearchParams(window.location.search); return params.get(name); }
   function setQs(name,val){ const url = new URL(window.location.href); url.searchParams.set(name,val); window.history.replaceState({},'',url); }
   function makeId(n=6){ const chars='abcdefghijklmnopqrstuvwxyz0123456789'; let s=''; for(let i=0;i<n;i++) s+=chars[Math.floor(Math.random()*chars.length)]; return s; }
-
-  let roomId = qs('room');
-  if(!roomId){ roomId = makeId(6); setQs('room',roomId); }
-
-  const roomStateRef = ref(db, `/rooms/${roomId}/state`);
-  const roomVotesRef = ref(db, `/rooms/${roomId}/votes`);
-  const roomPresenterRef = ref(db, `/rooms/${roomId}/presenter`);
-
-  // client id
-  let clientId = localStorage.getItem('flash_clientId');
-  if(!clientId){ clientId = 'c_' + Date.now() + '_' + Math.floor(Math.random()*10000); localStorage.setItem('flash_clientId', clientId); }
 
   // DOM refs
   const problemTitle = document.getElementById('problemTitle');
@@ -420,23 +478,77 @@
   const resultsBtn = document.getElementById('resultsBtn');
   const leaveRoomBtn = document.getElementById('leaveRoom');
 
+  const joinRoomBtn = document.getElementById('joinRoomBtn');
+  const qrPanel = document.getElementById('qrPanel');
+  const qrCanvas = document.getElementById('qrCanvas');
+  const qrLinkEl = document.getElementById('qrLink');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
+  const hideQrBtn = document.getElementById('hideQrBtn');
+
+  // client id
+  let clientId = localStorage.getItem('flash_clientId');
+  if(!clientId){ clientId = 'c_' + Date.now() + '_' + Math.floor(Math.random()*10000); localStorage.setItem('flash_clientId', clientId); }
+
   // state
+  let roomId = qs('room'); // may be null initially
+  let roomStateRef = null;
+  let roomVotesRef = null;
+  let roomPresenterRef = null;
+
   let currentProblemIndex = 0;
   let presenterResultsShown = false;
   let votes = {};
   let presenterId = null;
   let isPresenter = false;
 
-  // --- Rendering ---
+  // Presenter password (client-side simple)
+  const PRESENTER_PASSWORD = "Geheim!";
+
+  // ---------- DB listener attachment (only when roomId exists) ----------
+  function attachDBRefsAndListeners(){
+    if(!roomId) return;
+    roomStateRef = ref(db, `/rooms/${roomId}/state`);
+    roomVotesRef = ref(db, `/rooms/${roomId}/votes`);
+    roomPresenterRef = ref(db, `/rooms/${roomId}/presenter`);
+
+    // DB listeners
+    onValue(roomStateRef, (snap)=>{ 
+      const data = snap.val();
+      if(!data){
+        set(roomStateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp() }).catch(()=>{});
+        currentProblemIndex = 0;
+        renderScenarioForClient();
+        return;
+      }
+      currentProblemIndex = data.currentProblemIndex || 0;
+      renderScenarioForClient();
+    });
+
+    onValue(roomVotesRef, (snap)=>{ votes = snap.val() || {}; applyVotesToUI(); });
+
+    onValue(roomPresenterRef, (snap)=>{ presenterId = snap.val(); isPresenter = presenterId === clientId; updatePresenterControls(); applyVotesToUI(); });
+  }
+
+  // ---------- UI rendering and voting code (mostly unchanged) ----------
   function renderScenarioForClient(){
     const s = scenarios[currentProblemIndex];
-    problemTitle.textContent = s.title;
+    problemTitle.textContent = s ? s.title : 'Warte auf Problem...';
+    // hide reflexion box whenever we render a new scenario
+    reflexionEl.style.display = 'none';
+    reflexionEl.setAttribute('aria-hidden','true');
+    reflexionEl.textContent = '';
+
     cardsEl.innerHTML = '';
 
+    if(!s) return;
+
     s.options.forEach(optLabel=>{
-      const kiObj = KIs.find(k=>k.label===optLabel) || {label:optLabel, info:"(keine Info verfügbar)"};
+      const kiObj = KIs.find(k=>k.label===optLabel) || {label:optLabel, info:"(keine Info verfügbar)", url:null};
       const card = document.createElement('div');
       card.className = 'card';
+
+      const linkHtml = kiObj.url ? `<div class="ki-link-wrap"><a class="ki-link" href="${kiObj.url}" target="_blank" rel="noopener noreferrer">${kiObj.url}</a></div>` : '';
+
       card.innerHTML = `
         <div class="card-inner">
           <div class="card-face card-front" aria-hidden="false">
@@ -446,6 +558,7 @@
           </div>
           <div class="card-face card-back" aria-hidden="true">
             <div class="back-text">${kiObj.info}</div>
+            ${linkHtml}
             <button class="question-btn" aria-label="Reflexionsfrage">Frage</button>
           </div>
         </div>
@@ -467,9 +580,10 @@
         }
       });
 
-      // Favorite click -> set/remove vote in DB
+      // Favorite click -> set/remove vote in DB (if room exists)
       favBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
+        if(!roomId){ alert('Bitte erstmal einem Raum beitreten (Raum erstellen) oder einen Raum-Link öffnen.'); return; }
         const currentVote = votes[clientId] || null;
         const newVote = currentVote === kiObj.label ? null : kiObj.label;
         set(ref(db, `/rooms/${roomId}/votes/${clientId}`), newVote).catch(err=>console.error('vote write failed',err));
@@ -485,6 +599,15 @@
         // set aria-hidden for reflexion container for screen readers
         reflexionEl.setAttribute('aria-hidden','false');
       });
+
+      // Prevent link clicks from flipping the card; allow normal navigation (opens in new tab)
+      const linkEl = card.querySelector('.ki-link');
+      if(linkEl){
+        linkEl.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          // default behavior opens in new tab because of target="_blank"
+        });
+      }
 
       cardsEl.appendChild(card);
     });
@@ -602,6 +725,7 @@
 
   function restoreOriginalOrder(){
     const s = scenarios[currentProblemIndex];
+    if(!s) return;
     const labels = s.options;
     const map = new Map();
     document.querySelectorAll('.card').forEach(card=>{
@@ -611,11 +735,10 @@
     labels.forEach(l => { const el = map.get(l); if(el) cardsEl.appendChild(el); });
   }
 
-  // Presenter password (client-side simple)
-  const PRESENTER_PASSWORD = "Geheim!";
-
+  // ---------- Presenter controls ----------
   async function claimPresenter(){
     try{
+      if(!roomId){ alert('Bitte erst einem Raum beitreten oder einen Raum-Link öffnen.'); return; }
       const presRef = ref(db, `/rooms/${roomId}/presenter`);
       await runTransaction(presRef, (current)=>{
         if(current === null || current === clientId) return clientId;
@@ -631,7 +754,11 @@
   });
 
   async function releasePresenter(){
-    try{ const presRef = ref(db, `/rooms/${roomId}/presenter`); await runTransaction(presRef, (current)=>{ if(current===clientId) return null; return; }); }
+    try{
+      if(!roomId) return;
+      const presRef = ref(db, `/rooms/${roomId}/presenter`);
+      await runTransaction(presRef, (current)=>{ if(current===clientId) return null; return; });
+    }
     catch(err){ console.error('release failed', err); }
   }
 
@@ -646,34 +773,26 @@
     if(!isPresenter) return;
     presenterResultsShown = false;
     clearWinnerState();
+    // Hide reflexion/question when moving to the next problem
+    reflexionEl.style.display = 'none';
+    reflexionEl.setAttribute('aria-hidden','true');
+    reflexionEl.textContent = '';
     const newIndex = (currentProblemIndex + 1) % scenarios.length;
     update(roomStateRef, { currentProblemIndex: newIndex, updatedAt: serverTimestamp() }).catch(err=>console.error(err));
     // reset votes for next problem:
     set(ref(db, `/rooms/${roomId}/votes`), null).catch(()=>{});
   }
 
-  // DB listeners
-  onValue(roomStateRef, (snap)=>{ 
-    const data = snap.val();
-    if(!data){
-      set(roomStateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp() }).catch(()=>{});
-      currentProblemIndex = 0;
-      renderScenarioForClient();
-      return;
-    }
-    currentProblemIndex = data.currentProblemIndex || 0;
-    renderScenarioForClient();
-  });
-
-  onValue(roomVotesRef, (snap)=>{ votes = snap.val() || {}; applyVotesToUI(); });
-
-  onValue(roomPresenterRef, (snap)=>{ presenterId = snap.val(); isPresenter = presenterId === clientId; updatePresenterControls(); applyVotesToUI(); });
-
   releasePresenterBtn.addEventListener('click', async ()=>{ const ok = confirm('Presenter freigeben?'); if(!ok) return; await releasePresenter(); });
   resultsBtn.addEventListener('click', ()=>{ if(isPresenter) toggleResults(); });
   nextBtn.addEventListener('click', ()=>{ if(isPresenter) nextProblem(); });
 
-  leaveRoomBtn.addEventListener('click', async ()=>{ if(isPresenter){ await releasePresenter(); } const url = new URL(window.location.href); url.searchParams.delete('room'); window.location.href = url.toString(); });
+  leaveRoomBtn.addEventListener('click', async ()=>{ 
+    if(isPresenter){ await releasePresenter(); } 
+    const url = new URL(window.location.href); 
+    url.searchParams.delete('room'); 
+    window.location.href = url.toString();
+  });
 
   function updatePresenterControls(){
     if(isPresenter){
@@ -690,12 +809,83 @@
     }
   }
 
-  // bootstrap
-  renderScenarioForClient();
+  // ---------- Join room + QR logic ----------
+  function showJoinControlsForNoRoom(){
+    // show join button, hide QR if any
+    joinRoomBtn.style.display = 'inline-block';
+    qrPanel.style.display = 'none';
+    // Presenter controls should not be active before a room exists
+    claimPresenterBtn.style.display = 'inline-block';
+    nextBtn.style.display = 'none';
+    resultsBtn.style.display = 'none';
+    releasePresenterBtn.style.display = 'none';
+  }
+
+  async function createRoomAndShowQR(){
+    // create a new room id, write initial state to DB and attach listeners
+    roomId = makeId(6);
+    setQs('room', roomId);
+    // write initial room state including creator
+    const stateRef = ref(db, `/rooms/${roomId}/state`);
+    await set(stateRef, { currentProblemIndex: 0, showVoting: true, createdAt: serverTimestamp(), creator: clientId }).catch(console.error);
+    // optionally mark creator in room metadata
+    await set(ref(db, `/rooms/${roomId}/participants/${clientId}`), { joinedAt: serverTimestamp(), role: 'creator' }).catch(()=>{});
+    attachDBRefsAndListeners();
+    // show QR code and link
+    const link = window.location.href;
+    qrLinkEl.textContent = link;
+    qrPanel.style.display = 'block';
+    // generate QR to canvas (using qrcode lib)
+    try{
+      // clear previous canvas
+      qrCanvas.width = 140; qrCanvas.height = 140;
+      await QRCode.toCanvas(qrCanvas, link, { width: 140 });
+    }catch(e){
+      // fallback: show link text only
+      console.warn('QR generation failed', e);
+    }
+    joinRoomBtn.style.display = 'none';
+  }
+
+  joinRoomBtn.addEventListener('click', async ()=>{
+    const ok = confirm('Einen neuen Raum erstellen und QR-Link anzeigen?');
+    if(!ok) return;
+    await createRoomAndShowQR();
+  });
+
+  copyLinkBtn.addEventListener('click', async ()=>{
+    const txt = qrLinkEl.textContent;
+    try{
+      await navigator.clipboard.writeText(txt);
+      copyLinkBtn.textContent = 'Kopiert!';
+      setTimeout(()=> copyLinkBtn.textContent = 'Link kopieren', 1500);
+    }catch(e){
+      alert('Kopieren fehlgeschlagen. Bitte manuell kopieren: ' + txt);
+    }
+  });
+
+  hideQrBtn.addEventListener('click', ()=>{ qrPanel.style.display = 'none'; });
+
+  // If the page is opened with ?room=ID we should attach to that room automatically.
+  if(roomId){
+    // Hide join button; attach listeners to existing room
+    joinRoomBtn.style.display = 'none';
+    attachDBRefsAndListeners();
+  } else {
+    showJoinControlsForNoRoom();
+  }
+
+  // ---------- bootstrap rendering ----------
+  // if a room already exists we render once listeners attach; otherwise we show placeholder text
+  if(!roomId){
+    problemTitle.textContent = 'Bitte Raum beitreten oder einen Raum-Link öffnen.';
+    cardsEl.innerHTML = '';
+  }
 
   // best-effort release presenter on unload
   window.addEventListener('beforeunload', async ()=>{
     try{
+      if(!roomPresenterRef) return;
       const presSnapshot = await get(roomPresenterRef);
       if(presSnapshot && presSnapshot.val() === clientId){
         await runTransaction(roomPresenterRef, (current)=>{ if(current===clientId) return null; return; });
